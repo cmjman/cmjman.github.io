@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title><![CDATA[ShiningChan's Blog]]></title>
+  
+  <link href="/atom.xml" rel="self"/>
+  <link href="http://yoursite.com/"/>
+  <updated>2014-02-11T12:03:42.278Z</updated>
+  <id>http://yoursite.com/</id>
+  
+  <author>
+    <name><![CDATA[Shining Chan]]></name>
+    
+  </author>
+  
+  <generator uri="http://zespia.tw/hexo/">Hexo</generator>
+  
+  <entry>
+    <title><![CDATA[逃离北上广还是逃回北上广]]></title>
+    <link href="http://yoursite.com/2014/02/10/escape-from-big-city/"/>
+    <id>http://yoursite.com/2014/02/10/escape-from-big-city/</id>
+    <published>2014-02-10T12:59:22.000Z</published>
+    <updated>2014-02-10T14:41:51.000Z</updated>
+    <content type="html"><![CDATA[<p>最近知乎上一个关于逃离北上广的问题很火</p>
+<p>在阿里实习大半年，颇有点</p>
+]]></content>
+    
+    
+  </entry>
+  
+  <entry>
+    <title><![CDATA[create-your-own-hexo-blog]]></title>
+    <link href="http://yoursite.com/2014/01/19/create-your-own-hexo-blog/"/>
+    <id>http://yoursite.com/2014/01/19/create-your-own-hexo-blog/</id>
+    <published>2014-01-19T03:07:44.000Z</published>
+    <updated>2014-01-19T07:41:39.000Z</updated>
+    <content type="html"><![CDATA[<figure class="highlight"><table><tr><td class="gutter"><pre>1
+</pre></td><td class="code"><pre>brew <span class="keyword">install</span> npm
+</pre></td></tr></table></figure>
+
+
+<figure class="highlight"><table><tr><td class="gutter"><pre>1
+</pre></td><td class="code"><pre>code
+</pre></td></tr></table></figure>
+
+<blockquote><p>ddddd</p>
+</blockquote>
+]]></content>
+    
+    
+  </entry>
+  
+</feed>
