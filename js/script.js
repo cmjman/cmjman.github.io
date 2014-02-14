@@ -135,3 +135,7 @@
     $container.removeClass('mobile-nav-on');
   });
 })(jQuery);
+
+//Baidu 
+var _bdhmProtocol = (("https:" == document.location.protocol) ? " https://" : " http://");
+document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3Fd4f26347cb5376ca2373a039ee4191e2' type='text/javascript'%3E%3C/script%3E"));

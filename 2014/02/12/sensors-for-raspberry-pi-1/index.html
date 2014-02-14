@@ -3,23 +3,38 @@
 <head>
   <meta charset="utf-8">
   
-  <title>关于树莓派GPIO接口 一些资料整理 | ShiningChan&#39;s Blog</title>
+  <title>树莓派适用的传感器(一) | ShiningChan&#39;s Blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <meta name="og:type" content="blog">
-<meta name="og:title" content="关于树莓派GPIO接口 一些资料整理">
-<meta name="og:url" content="http://yoursite.com/2014/02/11/raspberry-pi-gpio/">
-<meta name="og:image" content="http://ww3.sinaimg.cn/large/674a21d2gw1edfrpddve1j20720g53zr.jpg">
+<meta name="og:title" content="树莓派适用的传感器(一)">
+<meta name="og:url" content="http://yoursite.com/2014/02/12/sensors-for-raspberry-pi-1/">
+<meta name="og:image" content="http://ww4.sinaimg.cn/large/674a21d2gw1edgk7ctgq7j20fd06laa6.jpg">
 <meta name="og:site_name" content="ShiningChan's Blog">
-<meta name="og:description" content="前言
-去年12月份入手了树莓派，由于同时在实习，一直没太多时间去把玩她，趁着要做毕业设计，加上寒假在家，就着手开始折腾。
-折腾的同时记录一些资料于此，方便之后使用。
+<meta name="og:description" content="DHT11 温湿度传感器
+技术参数
+
+供电电压:3.3-5.5V DC
+输出:单总线数字信号
+测量范围:湿度20-90%RH ，温度0-50℃
+测量精度:湿度+-5%RH， 温度+-2℃
 
 
-什么是GPIO
-作为一台廉价Linux电脑，树莓派与我们日常所见的PC最明显的不同，在于她提供了一组GPIO
-（General Purpose Input &amp; Output, 通用型输入输出）接口。
 
-上图可见部分引脚有两">
+接线图例
+
+HC-SR04 超声波测距模块
+技术参数
+
+供电电压：5V DC
+静态电流：小于2mA
+感应角度：不大于15°
+探测距离：2cm-450cm
+精度：0.2cm
+
+接线图例
+
+参考资料
+http:">
 <meta name="twitter:card" content="summary">
   
     <link rel="alternative" href="/atom.xml" title="ShiningChan&#39;s Blog" type="application/atom+xml">
@@ -68,10 +83,10 @@
   </div>
 </header>
       <div class="outer">
-        <section id="main"><article id="post-raspberry-pi-gpio" class="article article-type-post" itemscope itemprop="blogPost">
+        <section id="main"><article id="post-sensors-for-raspberry-pi-1" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
-    <a href="/2014/02/11/raspberry-pi-gpio/" class="article-date">
-  <time datetime="2014-02-11T12:04:39.000Z" itemprop="datePublished">2月 11 2014</time>
+    <a href="/2014/02/12/sensors-for-raspberry-pi-1/" class="article-date">
+  <time datetime="2014-02-12T05:47:19.000Z" itemprop="datePublished">2月 12 2014</time>
 </a>
     
   </div>
@@ -82,7 +97,7 @@
         
   
     <h1 class="article-title" itemprop="name">
-      关于树莓派GPIO接口 一些资料整理
+      树莓派适用的传感器(一)
     </h1>
   
 
@@ -90,37 +105,46 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h2 id="-">前言</h2>
-<p>去年12月份入手了树莓派，由于同时在实习，一直没太多时间去把玩她，趁着要做毕业设计，加上寒假在家，就着手开始折腾。</p>
-<p>折腾的同时记录一些资料于此，方便之后使用。</p>
+        <h2 id="dht11-">DHT11 温湿度传感器</h2>
+<h3 id="-">技术参数</h3>
+<ul>
+<li>供电电压:3.3-5.5V DC</li>
+<li>输出:单总线数字信号</li>
+<li>测量范围:湿度20-90%RH ，温度0-50℃</li>
+<li>测量精度:湿度+-5%RH， 温度+-2℃</li>
+</ul>
 <a id="more"></a>
 
-<h2 id="-gpio">什么是GPIO</h2>
-<p>作为一台廉价Linux电脑，树莓派与我们日常所见的PC最明显的不同，在于她提供了一组GPIO
-（General Purpose Input &amp; Output, 通用型输入输出）接口。</p>
-<p><img src="http://ww3.sinaimg.cn/large/674a21d2gw1edfrpddve1j20720g53zr.jpg" alt="GPIO接口引脚图"></p>
-<p>上图可见部分引脚有两个标记，R1表示第一版树莓派(256MB内存版本)，R2表示第二版（512MB内存）
-对于树莓派版本的判别，也可以通过在终端中输入以下命令查看CPU信息</p>
-<p><code>cat /proc/cpuinfo</code></p>
-<p>其中的Revision信息为0002或0003，则为第一版，更大的版本号或者包含字母则为第二版</p>
-<p>GPIO端口提供了7个通用的引脚和pin7 (GPIO4),默认提供时钟信号，但也可以做一般用途。总共8个引脚可以在两个状态之间切换：正电压3.3V高电平，以及接地或者0V的低电平，相当于 1和0的二进制逻辑，并可以用于打开或者关闭其他组件。</p>
-<h2 id="-gpio">如何操作GPIO</h2>
-<h3 id="-gpio-">官方GPIO模块</h3>
-<p>树莓派默认的Raspbian系统新版内置了该GPIO模块，对于早期版本则需要手动安装</p>
-<p>安装</p>
-<p><code>sudo apt-get install python-rpi.gpio</code></p>
-<p>开源地址 <a href="http://sourceforge.net/projects/raspberry-gpio-python/" target="_blank">http://sourceforge.net/projects/raspberry-gpio-python/</a></p>
-<h3 id="wiringpi">WiringPi</h3>
-<p>WiringPi是一个针对树莓派平台封装好的驱动库，有C,Python,PHP,Ruby,Perl等多种语言的实现。</p>
-<p>Python下安装可以直接使用pip安装</p>
-<p><code>sudo pip install wiringpi2</code></p>
-<p>开源地址 <a href="https://github.com/WiringPi/WiringPi-Python" target="_blank">https://github.com/WiringPi/WiringPi-Python</a></p>
-<p>使用WiringPi库封装后的引脚映射关系图</p>
-<p><img src="http://ww4.sinaimg.cn/large/674a21d2gw1edfq5oh4kkj20iy0hhta6.jpg" alt="映射关系图"></p>
-<h2 id="-">参考资料</h2>
-<p> 树莓派学习笔记 <a href="http://blog.csdn.net/xukai871105/article/category/1436049" target="_blank">http://blog.csdn.net/xukai871105/article/category/1436049</a></p>
-<p>《Getting Started with Raspberry Pi》Matt Richardson &amp; Shawn Wallace</p>
-<p>《Raspberry Pi 用户指南》 Eben Upton &amp; Gareth Halfacree</p>
+<h3 id="-">接线图例</h3>
+<p><img src="http://ww4.sinaimg.cn/large/674a21d2gw1edgk7ctgq7j20fd06laa6.jpg" alt="接线图"></p>
+<h2 id="hc-sr04-">HC-SR04 超声波测距模块</h2>
+<h3 id="-">技术参数</h3>
+<ul>
+<li>供电电压：5V DC</li>
+<li>静态电流：小于2mA</li>
+<li>感应角度：不大于15°</li>
+<li>探测距离：2cm-450cm</li>
+<li>精度：0.2cm</li>
+</ul>
+<h3 id="-">接线图例</h3>
+<p><img src="http://ww1.sinaimg.cn/large/674a21d2gw1edgwyknjqcj20eq0a9wew.jpg" alt="接线图"></p>
+<h3 id="-">参考资料</h3>
+<p><a href="http://www.raspberrypi-spy.co.uk/2012/12/ultrasonic-distance-measurement-using-python-part-1/" target="_blank">http://www.raspberrypi-spy.co.uk/2012/12/ultrasonic-distance-measurement-using-python-part-1/</a></p>
+<h2 id="hc-sr501-">HC-SR501 人体红外传感器</h2>
+<h3 id="-">技术参数</h3>
+<ul>
+<li>供电电压：5 - 20V DC</li>
+<li>静态功耗：65微安</li>
+<li>电平输出：高3.3V 低0V</li>
+<li>延时时间：0.3-18秒（可调）</li>
+<li>触发方式：L不可重复 H可重复 默认H</li>
+<li>感应范围：小于120°锥角 7米内</li>
+<li>工作温度：-15 - +70 ℃</li>
+</ul>
+<h3 id="-">接线图例</h3>
+<p><img src="http://ww1.sinaimg.cn/large/674a21d2gw1ediygtzvvhj20fa06ywen.jpg" alt="接线图"></p>
+<h3 id="-">参考资料</h3>
+<p><a href="http://www.raspberrypi-spy.co.uk/2013/01/cheap-pir-sensors-and-the-raspberry-pi-part-1/" target="_blank">http://www.raspberrypi-spy.co.uk/2013/01/cheap-pir-sensors-and-the-raspberry-pi-part-1/</a></p>
 
       
     </div>
@@ -138,15 +162,11 @@
     
 <nav id="article-nav">
   
-    <a href="/2014/02/12/sensors-for-raspberry-pi-1/" id="article-nav-newer" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">Newer</strong>
-      <div class="article-nav-title">
-        
-          树莓派适用的传感器(一)
-        
-      </div>
-    </a>
   
+    <a href="/2014/02/11/raspberry-pi-gpio/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">关于树莓派GPIO接口 一些资料整理</div>
+    </a>
   
 </nav>
 
