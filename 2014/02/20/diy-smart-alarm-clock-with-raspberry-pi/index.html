@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>一种物联网普适计算的DIY方法：智能闹钟 (译) | ShiningChan&#39;s Blog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="og:type" content="blog">
+<meta name="og:title" content="一种物联网普适计算的DIY方法：智能闹钟 (译)">
+<meta name="og:url" content="http://yoursite.com/2014/02/20/diy-smart-alarm-clock-with-raspberry-pi/">
+<meta name="og:image" content="http://ww3.sinaimg.cn/large/674a21d2gw1edq5udplnlj20ty0iejuo.jpg">
+<meta name="og:site_name" content="ShiningChan's Blog">
+<meta name="og:description" content="原文
+http://www.deepdyve.com/lp/institute-of-electrical-and-electronics-engineers/a-diy-approach-to-pervasive-computing-for-the-internet-of-things-a-KOj52wCzTu
+摘要
+本文通过一个智能闹钟的例子，探讨了物联网（IoT）DIY社区如何使用最新开发的">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternative" href="/atom.xml" title="ShiningChan&#39;s Blog" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  <link href="http://fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="/css/style.css" type="text/css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+</head>
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">ShiningChan&#39;s Blog</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">首页</a>
+        
+          <a class="main-nav-link" href="/archives">存档</a>
+        
+          <a class="main-nav-link" href="/about">关于</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><input type="submit" value="&#xF002;" class="search-form-submit"><input type="hidden" name="q" value="site:http://yoursite.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-diy-smart-alarm-clock-with-raspberry-pi" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2014/02/20/diy-smart-alarm-clock-with-raspberry-pi/" class="article-date">
+  <time datetime="2014-02-20T03:15:13.000Z" itemprop="datePublished">2月 20 2014</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      一种物联网普适计算的DIY方法：智能闹钟 (译)
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="-">原文</h2>
+<p><a href="http://www.deepdyve.com/lp/institute-of-electrical-and-electronics-engineers/a-diy-approach-to-pervasive-computing-for-the-internet-of-things-a-KOj52wCzTu" target="_blank">http://www.deepdyve.com/lp/institute-of-electrical-and-electronics-engineers/a-diy-approach-to-pervasive-computing-for-the-internet-of-things-a-KOj52wCzTu</a></p>
+<h2 id="-">摘要</h2>
+<p>本文通过一个智能闹钟的例子，探讨了物联网（IoT）DIY社区如何使用最新开发的低成本系统级芯片（SoC）开发板来促进智能对象的创新进程。这个闹钟将使用本地的温度传感器读数结合现有的交通和天气Web服务，提供给用
+户合适的提醒时间。并且包括了一个对现今可用的物联网部件和最先进的提
+供增强功能的闹钟的简要回顾。提供一种对闹钟软硬件部件描述和判断。CPU
+和内存资源测试表明了SoC设备在智能闹钟下的适用性。用户反馈则为闹钟功
+能提供了进一步发展的建议。</p>
+<a id="more"></a>
+
+<h2 id="-">关键词</h2>
+<p>物联网，智能闹钟，树莓派，系统级芯片，DIY，XBEE，智能对象</p>
+<h2 id="-">导言</h2>
+<p>除了经济利益的驱使之外，人类对于DIY有着强烈的驱动力，将DIY作为创造力，控制力，多元化，社会性的过度消费主义和全球化的出口，甚至仅仅是简单地想要自己实现[1]。最近的DIY电子设备趋势给在物联网（早期被称为嵌入式网络设备[2]）和智能城市、智能家居中进行大量创新提供了工具。</p>
+<p>智能物体是物联网的关键组件，它定义了物体的扩展能力，比如逻辑处理，信息存储，传感，现实世界的事件驱动和网络通信，并通过小型计算机使之成为可能。智能物体可以在彼此间通信和互动，以及与环境，互联网和人类通信[3]。现有的一个智能物体的例子是Karotz[4]，它是一个基于互联网的语音激活智能兔子，它所消耗的feed是从一个Web服务中选择，并且大声的读取feed。Karotz还集成了RFID传感器，用来检测可用的RFID标签的存在。</p>
+<p>本文侧重于通过智能闹钟这样一个形式去评估对于在智能物体的创新中最先进的SoC技术的使用。该装置将具备将本地的温度传感器读数结合交通和天气Web服务数据，来自动调整提醒时间的能力，以便于终端用户在预定的时间到达一个位置。这种装置可以减轻旅途中规划的负担，同时减少浪费在交通拥挤的时间，准时到达他们的目的地。</p>
+<h2 id="1-">1.智能对象创新的可用技术</h2>
+<h4 id="-soc-">微控制器和系统级芯片（SoC）板</h4>
+<p>低成本且低功率的微控制器和SoC板的出现，使得可以使用高级语言，比如C#或者Python进行编程，这有助于物联网智能对象的创新[5]。Arduino（使用Wiring编程），Gadgeteer和Netduino（都使用.Net框架编程）都是微控板的例子。一个SoC板子则相当于一个跑了操作系统的PC。SoC板子的例子是树莓派，它使用自有版本的Linux操作系统，称之为Raspbian[6]。Python是Raspbian系统下预装的默认编程语言，选择它是由于其简单性和解释性语言特征，这意味着可以无需编译直接执行代码[6]。一个SoC板子提供的主要好处是，它能在一个适于集成到智能物体的小设备中跑多个进程。</p>
+<h4 id="-">智能对象和他们与现实世界的交互</h4>
+<p>智能物体需要有能从他们当前环境收集数据，并触发现实世界事件的能力。这一般通过电子传感器和执行器来实现。现在对于DIY爱好者而言，已经有大量的低成本模拟和数字电子传感器可用，包括光，颜色，弯曲，力，运动，压力，温度，湿度，脉冲，加速度和倾斜传感器等等[7]。执行器可以用于开关发光二极管，发动机，音频输出设备和电子继电器等等。智能物体另一个主要的功能是能够通过本地网络或者互联网传输和接收数据。有很多网络产品被设计成用于低功耗协议，比如6LoWPAN和ZigBee，它们越来越流行用于创造个人无线传感器网络。Digi International公司的XBEE和思科的XRF无线电台是这类解决方案的例子。低功耗使得这些无线电设备很适用于传输和接收传感器小数据包和驱动数据（不同于标准化的Wi-Fi发送器，它被设计用于传输大型的多媒体文件数据）</p>
+<h2 id="2-">2.回顾现行最先进的闹钟</h2>
+<p>在写这篇论文的时候，市售的智能闹钟没有基于天气和交通条件动态调整提醒时间的功能。一些商业的闹钟，比如La Crosse WE-8115U-S 原子数字时钟[8]，具有将室内外温湿度读数显示在时钟LCD上的功能，但是却没有对这些读数进行逻辑处理。</p>
+<h4 id="-">智能闹钟原型</h4>
+<p>动态可编程闹钟（DPAC）是一种自我设定的闹钟，它由波士顿东北大学的学生MA设计，使用谷歌日历上的日程去设置提醒时间，并基于现行交通、天气状况进行自动调整[9].Web服务请求和闹钟逻辑通过供给时钟的提醒时间外部Web服务来运行。</p>
+<p>Rise闹钟[10]是另外一个原型，它利用交通状况去计算最佳的提醒时间。它并不把天气数据存在账户内，并且需要通过电话机插座连接到互联网。</p>
+<h4 id="-">智能手机的闹钟程序</h4>
+<p>Smart Alarm Clock Pro++ 是一个智能闹钟程序的例子，它使用天气状态去自动调整提醒时间。程序也添加了RSS功能和天气Feeds。这种应用逻辑决定了提醒时间仅限于根据天气预报，而不把交通状况纳入考虑范围内。</p>
+<p>虽然通过智能手机下载一个智能闹钟应用有着无需初始硬件支出的好处，手机需要一个合适的底座和充足电源供应去显示专用的闹钟。</p>
+<h2 id="3-">3.闹钟功能</h2>
+<p>智能闹钟的一个主要特征是运行包含当地传感器数据和网络服务的内部逻辑，并根据预定位置和期望的时间，来确定对于终端用户最佳的提醒时间。提醒时间的调整，依赖于交通状况和天气预报数据的精确性。本地天气传感器的读数可以用于进一步的调整提醒时间，以便驾驶员有足够时间去对他们的交通工具除雪。本地的天气传感器可以用于根据用户的当地环境提高读数精确度。智能闹钟的其它特征包括：</p>
+<ul>
+<li>通过网络服务来滚动显示新闻标题</li>
+<li>访问互联网电台</li>
+<li>为预定的路线显示当前的交通状况</li>
+<li>通过网络服务显示当地的天气</li>
+<li>存放自定义Web页面，以便使用一个局域网内的电脑作为闹钟</li>
+</ul>
+<h2 id="4-">4.闹钟的体系架构</h2>
+<h4 id="-">闹钟的硬件</h4>
+<p>根据第3节中的信息，智能闹钟可以被用于执行逻辑函数，因此一个SoC板子是必要的。我们选择了现成的树莓派，它有一个活跃的开发者社区分享项目和技术指引[11]。由于树莓派被限制于通过它所连接的网络获取时间信息，额外添加一个实时时钟（RTC）模块，可以确保在网络不可用的情况下有正确的时间读数。</p>
+<p>本地传感器和树莓派之间的温湿度读数使用XBEE无线发送器来提供数据通信。XBEE发送器提供了低功耗的数据传输功能，并拥有文档完善的API[12]。一个20x4字符的（HD44780）液晶显示器[13]提供了可视化的闹钟数据显示。对于长度超过20个文本的字符串可以滚动显示。控制板用来提供闹钟的用户输入界面，它有5个输入按钮，由8位端口拓展器芯片（MCP23008）[14]连接到树莓派的I2C接口组成。树莓派的3.5毫米音频输出插孔连接了一个合适的放大器解决方案和扬声器作为闹钟的音频输出。</p>
+<p><img src="http://ww3.sinaimg.cn/large/674a21d2gw1edq5udplnlj20ty0iejuo.jpg" alt="图1-树莓派智能闹钟和本地温度传感器接线图"></p>
+<h4 id="-">本地温湿度传感器的硬件</h4>
+<p>RHT03数字式温湿度传感器提供了高精度且可靠的读数[15]。Netduino Plus 2[16]微控制器板用于处理传感器的读数以及通过UART端口传输它们到无线XBEE模块。如果希望更省电，可以使用一个更小的控制器接口代替Netduino Plus 2，这样可以使用电池给传感器供电。</p>
+<h4 id="-web-">软件和Web服务</h4>
+<p>由于Raspbian系统预装了Python语言环境，以及它对于GPIO引脚驱动的原生支持，闹钟软件使用Python来实现。Netduino Plus 2使用.Net框架编写，并且使用C#语言去收集和传输本地传感器数据。</p>
+<p>Bing地图REST服务[17]提供了一个简单的RESTful接口请求道路沿线交通数据，因此被用做提醒时间计算的Web服务。天气数据收集则是通过英国气象局[18]以简单格式提供的DataPoint API。XBEE通信是通过XBEE API来进行错误校验以确保传感器数据传输的正确性。使用音乐播放器守护程序（MPD）来建立网络收音机，并通过MPC客户端[19]来访问。</p>
+<h4 id="-">闹钟软件的实现</h4>
+<p><img src="http://ww4.sinaimg.cn/large/674a21d2gw1edq6e23g7oj20uw0isjuw.jpg" alt="图2-软件体系结构框架图"></p>
+<h2 id="5-">5.评价</h2>
+<p>初步测试表明树莓派可以干练地运行智能闹钟应用，同时处理Web服务，本地传感器数据请求，LCD输出，控制板输入请求和自有的web服务器上运行的设置界面。根据Linux进程监控，在标准操作情况下闹钟最高会占用25-27%的CPU和2.4%的内存。当同时激活了网络电台，需要额外占用12%的CPU和2.5%的内存（根据配置变化最高会达到25%）。这明显给未来添加其他服务预留了内存和处理能力。</p>
+<p>阿格利亚罗斯金大学的4个信息学理学硕士进行了用户试验，获取到了闹钟功能反馈。在独立评估LCD模块和控制板的可用性之前，我们向每个学生提供了一份闹钟的概要。</p>
+<p><img src="http://ww4.sinaimg.cn/large/674a21d2gw1edq7vmp2b1j20uu0gyacu.jpg" alt="图3-在20x4液晶显示模块上的闹钟屏幕布局"></p>
+<p>用户反馈了如下的建议：</p>
+<ul>
+<li>使用更大的屏幕提高清晰度和添加新的服务</li>
+<li>连接谷歌日历接口以便在提醒日之前一天显示邀约。</li>
+<li>提供一个更直观的方式配置提醒设置，比如更大的屏幕，语音命令或者配套的智能手机应用。</li>
+<li>将程序移植成为一个智能手机应用，以便在不在家的情况下使用。</li>
+<li>添加社交媒体Feeds,比如Facebook和Twitter。</li>
+</ul>
+<h2 id="-">结论和未来的工作</h2>
+<p>这项工作表明，出于物联网创新的目的，智能物体中集成树莓派这类SoC板子，可以极大地提高这些对象的本地处理能力，并且不需要常见标准PC那样的电能耗费。小型的SoC板子使得智能物体可以被用在那些标准PC不适用的场景下。由于树莓派的计算能力仅相当于300MHz的奔腾ⅡPC[20],在闹钟的设计和研发过程中，数据传输是有限制的（尽可能）使用轻量级的标准，比如JSON。数据存储也限制于本地文件存储而不是专业的数据库。</p>
+<p>虽然Bing地图服务提供了一个简单的RESTful接口用于请求沿线的交通数据，但使用此服务有一个限制是要从服务所提供的描述来计算延迟。谷歌地图结合了生活和历史交通数据有效地计算出了延迟时间[21]，虽然在写这篇论文的时候，通过谷歌地图API获取这些信息需要有商业许可。英国高速公路管理局在data.gov.uk网页上通过XML格式发布了实时的交通数据信息。[22]这是一个综合的未经加工的实时数据信息，但是需要翻译成地理路线，这超过了本项目范围目标之外。</p>
+<p>在当前的实现中，本地温湿度传感器是直接通过XBee无线模块直接传输数据的。传感器的读数可以发布到互联网上的服务比如Xively（以前被称为Cosm and Pachube）[23],它提供了API以供其它服务去使用读数。考虑到无线传感器的数量有限，也可以通过闹钟的WiFi适配器直接传输传感器数据到互联网。使用闹钟去发布数据占用很少的硬件资源开销，但是添加传感器可能会导致闹钟性能的影响。普适计算的一个基本概念是通过传感器和计算能力与环境融为一体，从而利于人类居住者[24],因此，智能物体开始和很多其它的本地网络节点（其它智能物体与本地传感器/执行器）交互，其对于计算开销的要求也相应地提高。一个解决方案是将所有的节点发送到本地的专用智能网关，它可以获取内部和外部（互联网）的节点数据。其中一个现在正在开发的这类网关是思科的EVA Alpha板子，它适用于树莓派[25]，它的特点是将多个无线传感器网络协议集成到一个单板上。树莓派作为本地网络和互联网之间的网关。该模型的优势包括通过限制直接联网数量增加了网络的安全性，减少了节点的资源过载，并且让网络协议与自动化节点发现和订阅[26]功能两者间能更好的协同工作。</p>
+<p>所有用于创建闹钟的组件在DIY社区里面都有着广泛的文档记录，并且可以自由获取，这使得物联网领域的创新潜力大大提升。对于传统的产品设计而言，最终用户是预定义解决方案的使用人，相比之下，产品创新DIY方法是实现更加个性化和多终端产品的催化剂。</p>
+<h2 id="-">参考资料</h2>
+<ol>
+<li>Marc Roelands, Laurence Claeys, Marc Godon, Marjan Geerts, Mohamed Ali Feki, Lieven Trappeniers, Enabling the Masses to Become Creative in Smart Spaces, Architecting the Internet of Things, Springer-Verlag, Berlin Heidelberg (2011), 38, 42-43, 40.</li>
+<li>Chin J, Callaghan V., Embedded-Internet Devices: A Means of Realising the Pervasive Computing Vision, Proceedings of the IADIS International Conference WWW/Internet 2003, ICWI 2003, Algarve Portugal, 2003</li>
+<li>Irena Pletikosa Cvijikj, Florian Michahelles, The Toolkit Approach for End-user Participation in the Internet of Things, Architecting the Internet of Things, Springer-Verlag, Berlin Heidelberg (2011), 66.</li>
+<li>Karotz: <a href="http://store.karotz.com/en_US/" target="_blank">http://store.karotz.com/en_US/</a></li>
+<li>Cuno Pfister, Getting Started with the Internet of Things, O’Reilly Media Inc., Sebastopol, CA, USA,
+2011</li>
+<li>Matt Richardson and Shawn Wallace, Getting Started with Raspberry Pi, O’Reilly Media Inc.,
+Sebastopol, CA, USA, 2013</li>
+<li>Robert Faludi, Building Wireless Sensor Networks, O’Reilly Media Inc., Sebastopol, CA, USA, 2011 </li>
+<li>La Crosse Technology: <a href="http://wwwlacrossetechnology.com/308-145/" target="_blank">http://wwwlacrossetechnology.com/308-145/</a></li>
+<li>Eric Gaertner, DPAC – The Dynamically Programmable Alarm Clock: <a href="http://egaertner.com/dpac/" target="_blank">http://egaertner.com/dpac/</a></li>
+<li>BBC News, Smart alarm clock lets you lie in: <a href="http://news.bbc.co.uk/1/hi/technology/2269144.stm" target="_blank">http://news.bbc.co.uk/1/hi/technology/2269144.stm</a></li>
+<li>Raspberry Pi Forum: <a href="http://www.raspberrypi.org/phpBB3/" target="_blank">http://www.raspberrypi.org/phpBB3/</a></li>
+<li>Digi International: <a href="http://ftp1.digi.com/support/documentation/90000982_B.pdf" target="_blank">http://ftp1.digi.com/support/documentation/90000982_B.pdf</a></li>
+<li>Futulec MCP23008 Datasheet: <a href="https://www.futurlec.com/SFMicrochip/MCP23008.shtml" target="_blank">https://www.futurlec.com/SFMicrochip/MCP23008.shtml</a></li>
+<li>HobbyTronics: <a href="http://www.hobbytronics.co.uk/lcd-20-4-backlight-blue" target="_blank">http://www.hobbytronics.co.uk/lcd-20-4-backlight-blue</a></li>
+<li>Maxdetect: <a href="http://dlnmh9ip6v2uc.cloudfront.net/datasheets/Sensors/Weather/RHT03.pdf" target="_blank">http://dlnmh9ip6v2uc.cloudfront.net/datasheets/Sensors/Weather/RHT03.pdf</a></li>
+<li>Netduino: <a href="http://netduino.com/netduinoplus2/specs.htm" target="_blank">http://netduino.com/netduinoplus2/specs.htm</a></li>
+<li>MSDN Bing Maps REST Services: <a href="http://msdn.microsoft.com/en-us/library/ff701713.aspx" target="_blank">http://msdn.microsoft.com/en-us/library/ff701713.aspx</a></li>
+<li>Met Office DataPoint: <a href="http://www.metoffice.gov.uk/datapoint" target="_blank">http://www.metoffice.gov.uk/datapoint</a></li>
+<li>MPC Linux man page: <a href="http://linux.die.net/man/1/mpc" target="_blank">http://linux.die.net/man/1/mpc</a></li>
+<li>Raspberry Pi FAQs: <a href="http://www.raspberrypi.org/faqs" target="_blank">http://www.raspberrypi.org/faqs</a></li>
+<li>Google Maps: <a href="http://support.google.com/maps/bin/answer.py?hl=en&amp;answer=2549020" target="_blank">http://support.google.com/maps/bin/answer.py?hl=en&amp;answer=2549020</a></li>
+<li>Data.gov.uk: <a href="http://data.gov.uk/dataset/live-traffic-information-from-the-highways-agency-road-
+network">http://data.gov.uk/dataset/live-traffic-information-from-the-highways-agency-road-
+network</a></li>
+<li>Xively.com: <a href="https://xively.com/" target="_blank">https://xively.com/</a></li>
+<li>Satyanarayanan, M, Pervasive computing: vision and challenges, Personal Communications, vol. 8,
+Issue 4 (2001), 10-17</li>
+<li>Kickstarter, EVE Alpha - Raspberry Pi wireless development hardware:
+<a href="http://www.kickstarter.com/projects/ciseco/eve-alpha-raspberry-pi-wireless-development-hardwa" target="_blank">http://www.kickstarter.com/projects/ciseco/eve-alpha-raspberry-pi-wireless-development-hardwa</a></li>
+<li>Tools for the open source Internet of things: <a href="http://iot-toolkit.com/" target="_blank">http://iot-toolkit.com/</a></li>
+</ol>
+
+      
+    </div>
+    <footer class="article-footer">
+      
+      <!-- Baidu Share BEGIN -->
+        <div class="bdsharebuttonbox"><a href="#" class="bds_more" data-cmd="more"></a><a href="#" class="bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a><a href="#" class="bds_weixin" data-cmd="weixin" title="分享到微信"></a><a href="#" class="bds_renren" data-cmd="renren" title="分享到人人网"></a><a href="#" class="bds_mail" data-cmd="mail" title="分享到邮件分享"></a><a href="#" class="bds_copy" data-cmd="copy" title="分享到复制网址"></a></div>
+        <script>window._bd_share_config={"common":{"bdSnsKey":{},"bdText":"","bdMini":"1","bdMiniList":false,"bdPic":"","bdStyle":"1","bdSize":"16"},"share":{}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];</script>
+      <!-- Baidu Share END -->
+
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/译文/">译文</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2014/02/19/home-automation-with-raspberry-pi/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">基于树莓派DIY家居自动化 (译)</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+<section id="comments">
+  <!-- Duoshuo Comment BEGIN -->
+  <div class="ds-thread"></div>
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"cmjman"};
+      (function() {
+        var ds = document.createElement('script');
+        ds.type = 'text/javascript';ds.async = true;
+        ds.src = 'http://static.duoshuo.com/embed.js';
+        ds.charset = 'UTF-8';
+        (document.getElementsByTagName('head')[0] 
+        || document.getElementsByTagName('body')[0]).appendChild(ds);
+      })();
+  </script>
+  <!-- Duoshuo Comment END -->
+</section>
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/译文/">译文</a><span class="tag-list-count">2</span></li></ul>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/译文/" style="font-size: NaNpx;">译文</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/02">二月 2014</a><span class="archive-list-count">4</span></li></ul>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recents</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2014/02/20/diy-smart-alarm-clock-with-raspberry-pi/">一种物联网普适计算的DIY方法：智能闹钟 (译)</a>
+          </li>
+        
+          <li>
+            <a href="/2014/02/19/home-automation-with-raspberry-pi/">基于树莓派DIY家居自动化 (译)</a>
+          </li>
+        
+          <li>
+            <a href="/2014/02/12/sensors-for-raspberry-pi-1/">树莓派适用的传感器(一)</a>
+          </li>
+        
+          <li>
+            <a href="/2014/02/11/raspberry-pi-gpio/">关于树莓派GPIO接口 一些资料整理</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2014 Shining Chan<br>
+      Powered by <a href="http://zespia.tw/hexo/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">首页</a>
+  
+    <a href="/archives" class="mobile-nav-link">存档</a>
+  
+    <a href="/about" class="mobile-nav-link">关于</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script type="text/javascript" src="/js/script.js"></script>
+  </div>
+</body>
+</html>
