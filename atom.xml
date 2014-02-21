@@ -4,7 +4,7 @@
   
   <link href="/atom.xml" rel="self"/>
   <link href="http://yoursite.com/"/>
-  <updated>2014-02-21T07:38:39.596Z</updated>
+  <updated>2014-02-21T07:40:18.425Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -19,7 +19,7 @@
     <link href="http://yoursite.com/2014/02/20/diy-smart-alarm-clock-with-raspberry-pi/"/>
     <id>http://yoursite.com/2014/02/20/diy-smart-alarm-clock-with-raspberry-pi/</id>
     <published>2014-02-20T03:15:13.000Z</published>
-    <updated>2014-02-21T07:37:53.000Z</updated>
+    <updated>2014-02-21T07:40:12.000Z</updated>
     <content type="html"><![CDATA[<h2 id="-">原文</h2>
 <p><a href="http://www.deepdyve.com/lp/institute-of-electrical-and-electronics-engineers/a-diy-approach-to-pervasive-computing-for-the-internet-of-things-a-KOj52wCzTu" target="_blank">http://www.deepdyve.com/lp/institute-of-electrical-and-electronics-engineers/a-diy-approach-to-pervasive-computing-for-the-internet-of-things-a-KOj52wCzTu</a></p>
 <h2 id="-">摘要</h2>
@@ -31,7 +31,7 @@
 <a id="more"></a>
 
 <h2 id="-">关键词</h2>
-<p>物联网，智能闹钟，树莓派，系统级芯片，DIY，XBEE，智能对象</p>
+<p>物联网，智能闹钟，树莓派，系统级芯片，DIY，XBEE，智能物体</p>
 <h2 id="-">导言</h2>
 <p>除了经济利益的驱使之外，人类对于DIY有着强烈的驱动力，将DIY作为创造力，控制力，多元化，社会性的过度消费主义和全球化的出口，甚至仅仅是简单地想要自己实现[1]。最近的DIY电子设备趋势给在物联网（早期被称为嵌入式网络设备[2]）和智能城市、智能家居中进行大量创新提供了工具。</p>
 <p>智能物体是物联网的关键组件，它定义了物体的扩展能力，比如逻辑处理，信息存储，传感，现实世界的事件驱动和网络通信，并通过小型计算机使之成为可能。智能物体可以在彼此间通信和互动，以及与环境，互联网和人类通信[3]。现有的一个智能物体的例子是Karotz[4]，它是一个基于互联网的语音激活智能兔子，它所消耗的feed是从一个Web服务中选择，并且大声的读取feed。Karotz还集成了RFID传感器，用来检测可用的RFID标签的存在。</p>
