@@ -4,7 +4,7 @@
   
   <link href="/atom.xml" rel="self"/>
   <link href="http://yoursite.com/"/>
-  <updated>2014-02-24T13:13:44.669Z</updated>
+  <updated>2014-02-25T11:02:24.387Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -13,6 +13,204 @@
   </author>
   
   <generator uri="http://zespia.tw/hexo/">Hexo</generator>
+  
+  <entry>
+    <title><![CDATA[iOS开发基础知识整理]]></title>
+    <link href="http://yoursite.com/2014/02/25/basic-knowledge-of-ios-development/"/>
+    <id>http://yoursite.com/2014/02/25/basic-knowledge-of-ios-development/</id>
+    <published>2014-02-25T08:18:24.000Z</published>
+    <updated>2014-02-25T11:02:15.000Z</updated>
+    <content type="html"><![CDATA[<h2 id="block">Block</h2>
+<p>Block本质上就是一个带有局部变量的匿名函数，它于iOS4之后引入，基于C语言的指针和函数指针实现。</p>
+<a id="more"></a>
+
+<figure class="highlight [objc]"><table><tr><td class="gutter"><pre>1
+2
+3
+4
+</pre></td><td class="code"><pre>Block语法：
+^(<span class="keyword">int</span> <span class="keyword">event</span>){
+    <span class="comment">//doSomething</span>
+}
+</pre></td></tr></table></figure>
+
+<h2 id="-arc-">自动引用计数（ARC）</h2>
+<p>“在Objective-C采用Automatic Reference Counting (ARC)机制，让编译器来进行内存管理。在新一代Apple LLVM编译器中设置ARC为有效状态，就无需再次键入retain或者release代码，这在降低程序崩溃、内存泄漏等风险的同时，很大程度上减少了开发程序的工作量。编译器完全清楚目标对象，并能够立刻释放那些不再被使用的对象。如此一来，应用程序将具有可预测性，且能流畅运行，速度也将大幅提升。” -- 苹果关于ARC机制的官方说明</p>
+<p>引用计数式内存管理的思考方式：</p>
+<ul>
+<li>自己生成的对象，自己持有。</li>
+<li>非自己生成的对象，自己也能持有。</li>
+<li>不再需要自己持有的对象可以释放。</li>
+<li>非自己持有的对象不能释放。</li>
+</ul>
+<p>上述思考方式同时适用于ARC和非ARC下，对于ARC的情况下，有以下4个所有权修饰符：</p>
+<table>
+<thead>
+<tr>
+<th>修饰符</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>__strong</td>
+<td>强引用</td>
+</tr>
+<tr>
+<td>__weak</td>
+<td>弱引用</td>
+</tr>
+<tr>
+<td>__unsafe_unretained</td>
+<td>不安全不持有</td>
+</tr>
+<tr>
+<td>__autoreleasing</td>
+<td>自动释放</td>
+</tr>
+</tbody>
+</table>
+<p>使用ARC要遵守以下一些规则：</p>
+<ul>
+<li>不能使用retain/release/retainCount/autorelease</li>
+<li>不能使用NSAllocateObject/NSDeallocateObject</li>
+<li>需要遵守内存管理的方法命名规则</li>
+<li>不要显式地调用dealloc</li>
+<li>使用@autoreleasepool替代NSAutoreleasePool</li>
+<li>不能使用区域（NSZone）</li>
+<li>对象型变量不能作为C语言结构体(struct/union)的成员</li>
+<li>显式转换&quot;id&quot;和&quot;void *&quot;</li>
+</ul>
+<p>一个经典案例--Block中循环引用导致内存泄漏：</p>
+<figure class="highlight [objc]"><table><tr><td class="gutter"><pre>1
+2
+3
+</pre></td><td class="code"><pre><span class="keyword">self</span>.block = ^{
+    [<span class="keyword">self</span> doSomething];
+};
+</pre></td></tr></table></figure>
+
+<p>以上这段代码由于block在拷贝到堆上，会自动retain其引用的外部变量，造成两个对象互相强引用，导致我们俗称的循环引用出现。</p>
+<p>因此，对于一般在block需要引用对象自身的情况，一般采用<strong>unsafe_unretained或者</strong>weak创建，如下：</p>
+<figure class="highlight [objc]"><table><tr><td class="gutter"><pre>1
+2
+3
+4
+</pre></td><td class="code"><pre>__block __unsafe_unretained YourObject* weakself = <span class="keyword">self</span>;
+<span class="keyword">self</span>.<span class="keyword">block</span> = ^<span class="comment">{
+    [weakself doSomething];
+}</span>;
+</pre></td></tr></table></figure>
+
+<h2 id="grand-central-dispatch-gcd-">Grand Central Dispatch(GCD)</h2>
+<p>&quot;Grand Central Dispatch(GCD)是异步执行任务的技术之一。将应用程序中记述线程管理用的代码在系统级别实现。开发者只需要定义想要执行的任务，并追加到适当的Dispatch Queue中，GCD就能生成必要的线程并执行计划任务。由于线程管理是作为系统的一部分来实现的，因此可以统一管理，比起普通的线程更有效率。&quot; -- 苹果关于GCD机制的官方说明</p>
+<p>一个GCD使用的例子：</p>
+<figure class="highlight [objc]"><table><tr><td class="gutter"><pre>1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+</pre></td><td class="code"><pre><span class="built_in">dispatch_async</span>(queue,^{
+	
+    <span class="comment">//doSomething with long time processing</span>
+		
+    <span class="built_in">dispatch_async</span>(dispatch_get_main_queue(),^{
+		
+        <span class="comment">//process main thread with the above result</span>
+        <span class="comment">//e.g. update the user interface</span>
+    });
+});
+</pre></td></tr></table></figure>
+
+<p>Dispatch Queue本质上是执行处理的等待队列，通过上述的dispatch_async 函数将需要异步执行的处理添加到队列中。</p>
+<p>Dispatch Queue种类：</p>
+<table>
+<thead>
+<tr>
+<th>名称</th>
+<th>Dispatch Queue种类</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Main Dispatch Queue</td>
+<td>Serial Dispatch Queue</td>
+<td>主线程执行</td>
+</tr>
+<tr>
+<td>Global Dispatch Queue(High Priority)</td>
+<td>Concurrent Dispatch Queue</td>
+<td>最高优先级</td>
+</tr>
+<tr>
+<td>Global Dispatch Queue(Default Priority)</td>
+<td>Concurrent Dispatch Queue</td>
+<td>默认优先级</td>
+</tr>
+<tr>
+<td>Global Dispatch Queue(Low Priority)</td>
+<td>Concurrent Dispatch Queue</td>
+<td>低优先级</td>
+</tr>
+<tr>
+<td>Global Dispatch Queue(Background Priority)</td>
+<td>Concurrent Dispatch Queue</td>
+<td>后台优先级</td>
+</tr>
+</tbody>
+</table>
+<p>其中Serial Dispatch Queue等待现在执行中的处理结束，Concurrent Dispatch Queue则不等待，即前者是同步执行的，会堵塞，后者则是异步执行。</p>
+<p>参考：
+《Objective-C高级编程-iOS与OS X多线程和内存管理》 Kazuki Sakamoto &amp; Tomonhiko Furumoto 著</p>
+<h2 id="-observer-ios-">观察者模式（Observer）与iOS中的消息通信机制</h2>
+<p>消息中心 NSNotificationCenter:
+消息中心实际上是在程序内部提供了消息广播机制，它基于观察者模式实现，将接收到的消息转发给注册过的相应观察者对象。</p>
+<p><img src="http://ww3.sinaimg.cn/large/674a21d2gw1edvt7segebj20au07cwep.jpg" alt="消息中心"></p>
+<p>使用示例：</p>
+<p>将当前对象设为观察者，并发送消息</p>
+<figure class="highlight [objc]"><table><tr><td class="gutter"><pre>1
+2
+3
+4
+5
+6
+7
+</pre></td><td class="code"><pre><span class="built_in">NSNotificationCenter</span> *center = [<span class="built_in">NSNotificationCenter</span> defaultCenter];
+
+<span class="comment">//register observer</span>
+[center addObserver:<span class="keyword">self</span> selector:<span class="keyword">@selector</span>(GetMessage:) name:@<span class="string">"message"</span> object:<span class="literal">nil</span>];
+ 
+<span class="comment">//send message</span>
+[center postNotificationName:@<span class="string">"message"</span> object:@<span class="string">"content"</span>];
+</pre></td></tr></table></figure>
+
+<p>消息发出后，调用GetMessage方法</p>
+<figure class="highlight [objc]"><table><tr><td class="gutter"><pre>1
+2
+3
+4
+5
+</pre></td><td class="code"><pre>-(<span class="keyword">void</span>) GetMessage:(<span class="built_in">NSNotification</span> *) notificaion{
+    
+    <span class="built_in">NSString</span> *message = [notificaion object];
+    <span class="built_in">NSLog</span>(@<span class="string">"%@"</span>,message);
+}
+</pre></td></tr></table></figure>
+
+]]></content>
+    <summary type="html"><![CDATA[<h2 id="block">Block</h2>
+<p>Block本质上就是一个带有局部变量的匿名函数，它于iOS4之后引入，基于C语言的指针和函数指针实现。</p>
+]]></summary>
+    
+      <category term="iOS" scheme="http://yoursite.com/tags/iOS/"/>
+    
+  </entry>
   
   <entry>
     <title><![CDATA[一种物联网普适计算的DIY方法：智能闹钟 (译)]]></title>

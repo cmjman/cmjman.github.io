@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>iOS开发基础知识整理 | Shining IO</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="og:type" content="blog">
+<meta name="og:title" content="iOS开发基础知识整理">
+<meta name="og:url" content="http://yoursite.com/2014/02/25/basic-knowledge-of-ios-development/">
+<meta name="og:image" content="http://ww3.sinaimg.cn/large/674a21d2gw1edvt7segebj20au07cwep.jpg">
+<meta name="og:site_name" content="Shining IO">
+<meta name="og:description" content="Block
+Block本质上就是一个带有局部变量的匿名函数，它于iOS4之后引入，基于C语言的指针和函数指针实现。
+
+
+1
+2
+3
+4
+Block语法：
+^(int event){
+    //doSomething
+}
+
+
+自动引用计数（ARC）
+“在Objective-C采用Automatic Reference Counting (ARC)机制，让编译器来进行内存管理。在新一代Apple L">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternative" href="/atom.xml" title="Shining IO" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  <link href="http://fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="/css/style.css" type="text/css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+</head>
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Shining IO</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">首页</a>
+        
+          <a class="main-nav-link" href="/archives">存档</a>
+        
+          <a class="main-nav-link" href="/about">关于</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><input type="submit" value="&#xF002;" class="search-form-submit"><input type="hidden" name="q" value="site:http://yoursite.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-basic-knowledge-of-ios-development" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2014/02/25/basic-knowledge-of-ios-development/" class="article-date">
+  <time datetime="2014-02-25T08:18:24.000Z" itemprop="datePublished">2月 25 2014</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      iOS开发基础知识整理
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="block">Block</h2>
+<p>Block本质上就是一个带有局部变量的匿名函数，它于iOS4之后引入，基于C语言的指针和函数指针实现。</p>
+<a id="more"></a>
+
+<figure class="highlight [objc]"><table><tr><td class="gutter"><pre>1
+2
+3
+4
+</pre></td><td class="code"><pre>Block语法：
+^(<span class="keyword">int</span> <span class="keyword">event</span>){
+    <span class="comment">//doSomething</span>
+}
+</pre></td></tr></table></figure>
+
+<h2 id="-arc-">自动引用计数（ARC）</h2>
+<p>“在Objective-C采用Automatic Reference Counting (ARC)机制，让编译器来进行内存管理。在新一代Apple LLVM编译器中设置ARC为有效状态，就无需再次键入retain或者release代码，这在降低程序崩溃、内存泄漏等风险的同时，很大程度上减少了开发程序的工作量。编译器完全清楚目标对象，并能够立刻释放那些不再被使用的对象。如此一来，应用程序将具有可预测性，且能流畅运行，速度也将大幅提升。” -- 苹果关于ARC机制的官方说明</p>
+<p>引用计数式内存管理的思考方式：</p>
+<ul>
+<li>自己生成的对象，自己持有。</li>
+<li>非自己生成的对象，自己也能持有。</li>
+<li>不再需要自己持有的对象可以释放。</li>
+<li>非自己持有的对象不能释放。</li>
+</ul>
+<p>上述思考方式同时适用于ARC和非ARC下，对于ARC的情况下，有以下4个所有权修饰符：</p>
+<table>
+<thead>
+<tr>
+<th>修饰符</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>__strong</td>
+<td>强引用</td>
+</tr>
+<tr>
+<td>__weak</td>
+<td>弱引用</td>
+</tr>
+<tr>
+<td>__unsafe_unretained</td>
+<td>不安全不持有</td>
+</tr>
+<tr>
+<td>__autoreleasing</td>
+<td>自动释放</td>
+</tr>
+</tbody>
+</table>
+<p>使用ARC要遵守以下一些规则：</p>
+<ul>
+<li>不能使用retain/release/retainCount/autorelease</li>
+<li>不能使用NSAllocateObject/NSDeallocateObject</li>
+<li>需要遵守内存管理的方法命名规则</li>
+<li>不要显式地调用dealloc</li>
+<li>使用@autoreleasepool替代NSAutoreleasePool</li>
+<li>不能使用区域（NSZone）</li>
+<li>对象型变量不能作为C语言结构体(struct/union)的成员</li>
+<li>显式转换&quot;id&quot;和&quot;void *&quot;</li>
+</ul>
+<p>一个经典案例--Block中循环引用导致内存泄漏：</p>
+<figure class="highlight [objc]"><table><tr><td class="gutter"><pre>1
+2
+3
+</pre></td><td class="code"><pre><span class="keyword">self</span>.block = ^{
+    [<span class="keyword">self</span> doSomething];
+};
+</pre></td></tr></table></figure>
+
+<p>以上这段代码由于block在拷贝到堆上，会自动retain其引用的外部变量，造成两个对象互相强引用，导致我们俗称的循环引用出现。</p>
+<p>因此，对于一般在block需要引用对象自身的情况，一般采用<strong>unsafe_unretained或者</strong>weak创建，如下：</p>
+<figure class="highlight [objc]"><table><tr><td class="gutter"><pre>1
+2
+3
+4
+</pre></td><td class="code"><pre>__block __unsafe_unretained YourObject* weakself = <span class="keyword">self</span>;
+<span class="keyword">self</span>.<span class="keyword">block</span> = ^<span class="comment">{
+    [weakself doSomething];
+}</span>;
+</pre></td></tr></table></figure>
+
+<h2 id="grand-central-dispatch-gcd-">Grand Central Dispatch(GCD)</h2>
+<p>&quot;Grand Central Dispatch(GCD)是异步执行任务的技术之一。将应用程序中记述线程管理用的代码在系统级别实现。开发者只需要定义想要执行的任务，并追加到适当的Dispatch Queue中，GCD就能生成必要的线程并执行计划任务。由于线程管理是作为系统的一部分来实现的，因此可以统一管理，比起普通的线程更有效率。&quot; -- 苹果关于GCD机制的官方说明</p>
+<p>一个GCD使用的例子：</p>
+<figure class="highlight [objc]"><table><tr><td class="gutter"><pre>1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+</pre></td><td class="code"><pre><span class="built_in">dispatch_async</span>(queue,^{
+	
+    <span class="comment">//doSomething with long time processing</span>
+		
+    <span class="built_in">dispatch_async</span>(dispatch_get_main_queue(),^{
+		
+        <span class="comment">//process main thread with the above result</span>
+        <span class="comment">//e.g. update the user interface</span>
+    });
+});
+</pre></td></tr></table></figure>
+
+<p>Dispatch Queue本质上是执行处理的等待队列，通过上述的dispatch_async 函数将需要异步执行的处理添加到队列中。</p>
+<p>Dispatch Queue种类：</p>
+<table>
+<thead>
+<tr>
+<th>名称</th>
+<th>Dispatch Queue种类</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Main Dispatch Queue</td>
+<td>Serial Dispatch Queue</td>
+<td>主线程执行</td>
+</tr>
+<tr>
+<td>Global Dispatch Queue(High Priority)</td>
+<td>Concurrent Dispatch Queue</td>
+<td>最高优先级</td>
+</tr>
+<tr>
+<td>Global Dispatch Queue(Default Priority)</td>
+<td>Concurrent Dispatch Queue</td>
+<td>默认优先级</td>
+</tr>
+<tr>
+<td>Global Dispatch Queue(Low Priority)</td>
+<td>Concurrent Dispatch Queue</td>
+<td>低优先级</td>
+</tr>
+<tr>
+<td>Global Dispatch Queue(Background Priority)</td>
+<td>Concurrent Dispatch Queue</td>
+<td>后台优先级</td>
+</tr>
+</tbody>
+</table>
+<p>其中Serial Dispatch Queue等待现在执行中的处理结束，Concurrent Dispatch Queue则不等待，即前者是同步执行的，会堵塞，后者则是异步执行。</p>
+<p>参考：
+《Objective-C高级编程-iOS与OS X多线程和内存管理》 Kazuki Sakamoto &amp; Tomonhiko Furumoto 著</p>
+<h2 id="-observer-ios-">观察者模式（Observer）与iOS中的消息通信机制</h2>
+<p>消息中心 NSNotificationCenter:
+消息中心实际上是在程序内部提供了消息广播机制，它基于观察者模式实现，将接收到的消息转发给注册过的相应观察者对象。</p>
+<p><img src="http://ww3.sinaimg.cn/large/674a21d2gw1edvt7segebj20au07cwep.jpg" alt="消息中心"></p>
+<p>使用示例：</p>
+<p>将当前对象设为观察者，并发送消息</p>
+<figure class="highlight [objc]"><table><tr><td class="gutter"><pre>1
+2
+3
+4
+5
+6
+7
+</pre></td><td class="code"><pre><span class="built_in">NSNotificationCenter</span> *center = [<span class="built_in">NSNotificationCenter</span> defaultCenter];
+
+<span class="comment">//register observer</span>
+[center addObserver:<span class="keyword">self</span> selector:<span class="keyword">@selector</span>(GetMessage:) name:@<span class="string">"message"</span> object:<span class="literal">nil</span>];
+ 
+<span class="comment">//send message</span>
+[center postNotificationName:@<span class="string">"message"</span> object:@<span class="string">"content"</span>];
+</pre></td></tr></table></figure>
+
+<p>消息发出后，调用GetMessage方法</p>
+<figure class="highlight [objc]"><table><tr><td class="gutter"><pre>1
+2
+3
+4
+5
+</pre></td><td class="code"><pre>-(<span class="keyword">void</span>) GetMessage:(<span class="built_in">NSNotification</span> *) notificaion{
+    
+    <span class="built_in">NSString</span> *message = [notificaion object];
+    <span class="built_in">NSLog</span>(@<span class="string">"%@"</span>,message);
+}
+</pre></td></tr></table></figure>
+
+
+      
+    </div>
+    <footer class="article-footer">
+      
+      <!-- Baidu Share BEGIN -->
+        <div class="bdsharebuttonbox"><a href="#" class="bds_more" data-cmd="more"></a><a href="#" class="bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a><a href="#" class="bds_weixin" data-cmd="weixin" title="分享到微信"></a><a href="#" class="bds_renren" data-cmd="renren" title="分享到人人网"></a><a href="#" class="bds_mail" data-cmd="mail" title="分享到邮件分享"></a><a href="#" class="bds_copy" data-cmd="copy" title="分享到复制网址"></a></div>
+        <script>window._bd_share_config={"common":{"bdSnsKey":{},"bdText":"","bdMini":"1","bdMiniList":false,"bdPic":"","bdStyle":"1","bdSize":"16"},"share":{}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];</script>
+      <!-- Baidu Share END -->
+
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/iOS/">iOS</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2014/02/20/diy-smart-alarm-clock-with-raspberry-pi/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">一种物联网普适计算的DIY方法：智能闹钟 (译)</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+<section id="comments">
+  <!-- Duoshuo Comment BEGIN -->
+  <div class="ds-thread"></div>
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"cmjman"};
+      (function() {
+        var ds = document.createElement('script');
+        ds.type = 'text/javascript';ds.async = true;
+        ds.src = 'http://static.duoshuo.com/embed.js';
+        ds.charset = 'UTF-8';
+        (document.getElementsByTagName('head')[0] 
+        || document.getElementsByTagName('body')[0]).appendChild(ds);
+      })();
+  </script>
+  <!-- Duoshuo Comment END -->
+</section>
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/iOS/">iOS</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/译文/">译文</a><span class="tag-list-count">2</span></li></ul>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/iOS/" style="font-size: 10.00px;">iOS</a><a href="/tags/译文/" style="font-size: 20.00px;">译文</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/02">二月 2014</a><span class="archive-list-count">5</span></li></ul>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recents</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2014/02/25/basic-knowledge-of-ios-development/">iOS开发基础知识整理</a>
+          </li>
+        
+          <li>
+            <a href="/2014/02/20/diy-smart-alarm-clock-with-raspberry-pi/">一种物联网普适计算的DIY方法：智能闹钟 (译)</a>
+          </li>
+        
+          <li>
+            <a href="/2014/02/19/home-automation-with-raspberry-pi/">基于树莓派DIY家居自动化 (译)</a>
+          </li>
+        
+          <li>
+            <a href="/2014/02/12/sensors-for-raspberry-pi-1/">树莓派适用的传感器(一)</a>
+          </li>
+        
+          <li>
+            <a href="/2014/02/11/raspberry-pi-gpio/">关于树莓派GPIO接口 一些资料整理</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2014 Shining Chan<br>
+      Powered by <a href="http://zespia.tw/hexo/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">首页</a>
+  
+    <a href="/archives" class="mobile-nav-link">存档</a>
+  
+    <a href="/about" class="mobile-nav-link">关于</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script type="text/javascript" src="/js/script.js"></script>
+  </div>
+</body>
+</html>
