@@ -4,7 +4,7 @@
   
   <link href="/atom.xml" rel="self"/>
   <link href="http://yoursite.com/"/>
-  <updated>2014-02-25T11:02:24.387Z</updated>
+  <updated>2014-03-02T16:57:23.927Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -13,6 +13,169 @@
   </author>
   
   <generator uri="http://zespia.tw/hexo/">Hexo</generator>
+  
+  <entry>
+    <title><![CDATA[基于树莓派搭建的Tornado WebService性能测试]]></title>
+    <link href="http://yoursite.com/2014/03/02/pi-performance-testing-with-tornado-and-nginx/"/>
+    <id>http://yoursite.com/2014/03/02/pi-performance-testing-with-tornado-and-nginx/</id>
+    <published>2014-03-02T15:27:39.000Z</published>
+    <updated>2014-03-02T16:56:23.000Z</updated>
+    <content type="html"><![CDATA[<h2 id="-">前言</h2>
+<p>毕业设计是基于树莓派来折腾一个简易的智能家居系统，其中树莓派作为核心控制器提供服务。虽然知道对于树莓派这样的廉价玩具，在性能上并不会有着出众的表现，不过仍然挺好奇一个单核arm架构的廉价计算机性能究竟如何，于是就自己动手简单测试了下。</p>
+<a id="more"></a>
+
+<h2 id="-">测试环境</h2>
+<h3 id="-">硬件</h3>
+<p>树莓派B型</p>
+<ul>
+<li>CPU:单核 ARM1176JZF-S（ARM11系列）700MHz</li>
+<li>内存:512MB</li>
+</ul>
+<h3 id="-">软件</h3>
+<p>服务器前端放置一个Nginx来处理静态请求，动态的则转发给Tornado来处理，后端使用SQLAlchemy作为ORM，连接MySQL数据库。</p>
+<p>根据Tornado官方文档，来配置了Nginx转发请求。
+参考：<a href="http://www.tornadoweb.cn/documentation" target="_blank">http://www.tornadoweb.cn/documentation</a></p>
+<p>主要配置点如下：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre>1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+</pre></td><td class="code"><pre> <span class="comment"># 针对单核处理器，仅配置一个worker进程</span>
+worker_processes <span class="number">1</span>;
+
+http {
+    <span class="comment"># 转发请求到本地8080端口的Tornado服务器，同样只使用一个进程</span>
+    upstream frontends {
+        server <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">8080</span>;
+    }
+
+    <span class="keyword">include</span> /etc/nginx/mime.types;
+    default_type application/octet-stream;
+
+    access_log /<span class="keyword">var</span>/log/nginx/access.log;
+
+    keepalive_timeout <span class="number">65</span>;
+    proxy_read_timeout <span class="number">200</span>;
+    sendfile on;
+    tcp_nopush on;
+    tcp_nodelay on;
+    gzip on;
+    gzip_min_length <span class="number">1000</span>;
+    gzip_proxied any;
+    gzip_types text/plain text/html text/css text/xml
+               application/x-javascript application/xml
+               application/atom+xml text/javascript;
+
+    proxy_next_upstream error;
+
+    server {
+        listen <span class="number">80</span>;
+        
+        client_max_body_size <span class="number">50</span>M;
+
+        location ^~ /<span class="keyword">static</span>/ {
+            root /<span class="keyword">var</span>/www;
+            <span class="keyword">if</span> (<span class="variable">$query_string</span>) {
+                expires max;
+            }
+        }
+        location = /favicon.ico {
+            rewrite (.*) /<span class="keyword">static</span>/favicon.ico;
+        }
+        location = /robots.txt {
+            rewrite (.*) /<span class="keyword">static</span>/robots.txt;
+        }
+
+        location / {
+            proxy_pass_header Server;
+            proxy_set_header Host <span class="variable">$http_host</span>;
+            proxy_redirect <span class="keyword">false</span>;
+            proxy_set_header X-Real-IP <span class="variable">$remote_addr</span>;
+            proxy_set_header X-Scheme <span class="variable">$scheme</span>;
+            proxy_pass http:<span class="comment">//frontends;</span>
+        }
+    }
+}
+</pre></td></tr></table></figure>
+
+<h3 id="-">系统架构图</h3>
+<p><img src="http://ww2.sinaimg.cn/large/674a21d2gw1ee1vdc95s1j20fo0ej74s.jpg" alt="系统架构"></p>
+<h2 id="-">测试方法</h2>
+<p>服务端部署了一个简单登录逻辑</p>
+<p>使用Siege工具进行压测，使用方法参考：
+<a href="http://www.javaranger.com/archives/1168" target="_blank">http://www.javaranger.com/archives/1168</a></p>
+<p>命令行请求
+<code>siege -c 500 -r 1 &quot;http://192.168.1.150/service/login POST user_id=1&amp;password=123456&quot;</code></p>
+<h2 id="-">测试结果</h2>
+<h3 id="-">单请求</h3>
+<p>针对每个用户发一次请求的情况下，基本可以保持500个用户的并发。
+<img src="http://ww3.sinaimg.cn/large/674a21d2gw1ee1vnb5vukj21k50caahu.jpg" alt="单请求"></p>
+<h3 id="-">多请求</h3>
+<p>考虑到实际情况，可能有一次请求不成功然后发多次请求的情况，以5次为例。
+实际测试发现325个用户，每个用户5次请求，即总1625次请求下，基本达到性能极限，请求成功率99.88%，超过这个数字则产生大量超时请求。
+<img src="http://ww1.sinaimg.cn/large/674a21d2gw1ee1vqvdwc7j21jb0c6aha.jpg" alt="多请求"></p>
+<h3 id="-">总结</h3>
+<p>虽然限于本身硬件问题，树莓派的并发性能不是很好，但作为一个的家用型智能家居自动化核心控制器应当足够用了。</p>
+]]></content>
+    <summary type="html"><![CDATA[<h2 id="-">前言</h2>
+<p>毕业设计是基于树莓派来折腾一个简易的智能家居系统，其中树莓派作为核心控制器提供服务。虽然知道对于树莓派这样的廉价玩具，在性能上并不会有着出众的表现，不过仍然挺好奇一个单核arm架构的廉价计算机性能究竟如何，于是就自己动手简单测试了下。</p>
+]]></summary>
+    
+      <category term="树莓派" scheme="http://yoursite.com/tags/%E6%A0%91%E8%8E%93%E6%B4%BE/"/>
+    
+  </entry>
   
   <entry>
     <title><![CDATA[iOS开发基础知识整理]]></title>

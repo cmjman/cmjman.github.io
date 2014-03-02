@@ -3,23 +3,26 @@
 <head>
   <meta charset="utf-8">
   
-  <title>关于树莓派GPIO接口 一些资料整理 | Shining IO</title>
+  <title>基于树莓派搭建的Tornado WebService性能测试 | Shining IO</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <meta name="og:type" content="blog">
-<meta name="og:title" content="关于树莓派GPIO接口 一些资料整理">
-<meta name="og:url" content="http://yoursite.com/2014/02/11/raspberry-pi-gpio/">
-<meta name="og:image" content="http://ww3.sinaimg.cn/large/674a21d2gw1edfrpddve1j20720g53zr.jpg">
+<meta name="og:title" content="基于树莓派搭建的Tornado WebService性能测试">
+<meta name="og:url" content="http://yoursite.com/2014/03/02/pi-performance-testing-with-tornado-and-nginx/">
+<meta name="og:image" content="http://ww2.sinaimg.cn/large/674a21d2gw1ee1vdc95s1j20fo0ej74s.jpg">
 <meta name="og:site_name" content="Shining IO">
 <meta name="og:description" content="前言
-去年12月份入手了树莓派，由于同时在实习，一直没太多时间去把玩她，趁着要做毕业设计，加上寒假在家，就着手开始折腾。
-折腾的同时记录一些资料于此，方便之后使用。
+毕业设计是基于树莓派来折腾一个简易的智能家居系统，其中树莓派作为核心控制器提供服务。虽然知道对于树莓派这样的廉价玩具，在性能上并不会有着出众的表现，不过仍然挺好奇一个单核arm架构的廉价计算机性能究竟如何，于是就自己动手简单测试了下。
 
 
-什么是GPIO
-作为一台廉价Linux电脑，树莓派与我们日常所见的PC最明显的不同，在于她提供了一组GPIO
-（General Purpose Input &amp; Output, 通用型输入输出）接口。
+测试环境
+硬件
+树莓派B型
 
-上图可见部分引脚有两">
+CPU:单核 ARM1176JZF-S（ARM11系列）700MHz
+内存:512MB
+
+软件
+服务器前端放置一个Nginx">
 <meta name="twitter:card" content="summary">
   
     <link rel="alternative" href="/atom.xml" title="Shining IO" type="application/atom+xml">
@@ -68,10 +71,10 @@
   </div>
 </header>
       <div class="outer">
-        <section id="main"><article id="post-raspberry-pi-gpio" class="article article-type-post" itemscope itemprop="blogPost">
+        <section id="main"><article id="post-pi-performance-testing-with-tornado-and-nginx" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
-    <a href="/2014/02/11/raspberry-pi-gpio/" class="article-date">
-  <time datetime="2014-02-11T12:04:39.000Z" itemprop="datePublished">2月 11 2014</time>
+    <a href="/2014/03/02/pi-performance-testing-with-tornado-and-nginx/" class="article-date">
+  <time datetime="2014-03-02T15:27:39.000Z" itemprop="datePublished">3月 2 2014</time>
 </a>
     
   </div>
@@ -82,7 +85,7 @@
         
   
     <h1 class="article-title" itemprop="name">
-      关于树莓派GPIO接口 一些资料整理
+      基于树莓派搭建的Tornado WebService性能测试
     </h1>
   
 
@@ -91,36 +94,153 @@
     <div class="article-entry" itemprop="articleBody">
       
         <h2 id="-">前言</h2>
-<p>去年12月份入手了树莓派，由于同时在实习，一直没太多时间去把玩她，趁着要做毕业设计，加上寒假在家，就着手开始折腾。</p>
-<p>折腾的同时记录一些资料于此，方便之后使用。</p>
+<p>毕业设计是基于树莓派来折腾一个简易的智能家居系统，其中树莓派作为核心控制器提供服务。虽然知道对于树莓派这样的廉价玩具，在性能上并不会有着出众的表现，不过仍然挺好奇一个单核arm架构的廉价计算机性能究竟如何，于是就自己动手简单测试了下。</p>
 <a id="more"></a>
 
-<h2 id="-gpio">什么是GPIO</h2>
-<p>作为一台廉价Linux电脑，树莓派与我们日常所见的PC最明显的不同，在于她提供了一组GPIO
-（General Purpose Input &amp; Output, 通用型输入输出）接口。</p>
-<p><img src="http://ww3.sinaimg.cn/large/674a21d2gw1edfrpddve1j20720g53zr.jpg" alt="GPIO接口引脚图"></p>
-<p>上图可见部分引脚有两个标记，R1表示第一版树莓派(256MB内存版本)，R2表示第二版（512MB内存）
-对于树莓派版本的判别，也可以通过在终端中输入以下命令查看CPU信息</p>
-<p><code>cat /proc/cpuinfo</code></p>
-<p>其中的Revision信息为0002或0003，则为第一版，更大的版本号或者包含字母则为第二版</p>
-<p>GPIO端口提供了7个通用的引脚和pin7 (GPIO4),默认提供时钟信号，但也可以做一般用途。总共8个引脚可以在两个状态之间切换：正电压3.3V高电平，以及接地或者0V的低电平，相当于 1和0的二进制逻辑，并可以用于打开或者关闭其他组件。</p>
-<h2 id="-gpio">如何操作GPIO</h2>
-<h3 id="-gpio-">官方GPIO模块</h3>
-<p>树莓派默认的Raspbian系统新版内置了该GPIO模块，对于早期版本则需要手动安装</p>
-<p>安装</p>
-<p><code>sudo apt-get install python-rpi.gpio</code></p>
-<p>开源地址 <a href="http://sourceforge.net/projects/raspberry-gpio-python/" target="_blank">http://sourceforge.net/projects/raspberry-gpio-python/</a></p>
-<h3 id="wiringpi">WiringPi</h3>
-<p>WiringPi是一个针对树莓派平台封装好的驱动库，有C,Python,PHP,Ruby,Perl等多种语言的实现。</p>
-<p>Python下安装可以直接使用pip安装</p>
-<p><code>sudo pip install wiringpi2</code></p>
-<p>开源地址 <a href="https://github.com/WiringPi/WiringPi-Python" target="_blank">https://github.com/WiringPi/WiringPi-Python</a></p>
-<p>使用WiringPi库封装后的引脚映射关系图</p>
-<p><img src="http://ww4.sinaimg.cn/large/674a21d2gw1edfq5oh4kkj20iy0hhta6.jpg" alt="映射关系图"></p>
-<h2 id="-">参考资料</h2>
-<p> 树莓派学习笔记 <a href="http://blog.csdn.net/xukai871105/article/category/1436049" target="_blank">http://blog.csdn.net/xukai871105/article/category/1436049</a></p>
-<p>《Getting Started with Raspberry Pi》Matt Richardson &amp; Shawn Wallace</p>
-<p>《Raspberry Pi 用户指南》 Eben Upton &amp; Gareth Halfacree</p>
+<h2 id="-">测试环境</h2>
+<h3 id="-">硬件</h3>
+<p>树莓派B型</p>
+<ul>
+<li>CPU:单核 ARM1176JZF-S（ARM11系列）700MHz</li>
+<li>内存:512MB</li>
+</ul>
+<h3 id="-">软件</h3>
+<p>服务器前端放置一个Nginx来处理静态请求，动态的则转发给Tornado来处理，后端使用SQLAlchemy作为ORM，连接MySQL数据库。</p>
+<p>根据Tornado官方文档，来配置了Nginx转发请求。
+参考：<a href="http://www.tornadoweb.cn/documentation" target="_blank">http://www.tornadoweb.cn/documentation</a></p>
+<p>主要配置点如下：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre>1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+</pre></td><td class="code"><pre> <span class="comment"># 针对单核处理器，仅配置一个worker进程</span>
+worker_processes <span class="number">1</span>;
+
+http {
+    <span class="comment"># 转发请求到本地8080端口的Tornado服务器，同样只使用一个进程</span>
+    upstream frontends {
+        server <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">8080</span>;
+    }
+
+    <span class="keyword">include</span> /etc/nginx/mime.types;
+    default_type application/octet-stream;
+
+    access_log /<span class="keyword">var</span>/log/nginx/access.log;
+
+    keepalive_timeout <span class="number">65</span>;
+    proxy_read_timeout <span class="number">200</span>;
+    sendfile on;
+    tcp_nopush on;
+    tcp_nodelay on;
+    gzip on;
+    gzip_min_length <span class="number">1000</span>;
+    gzip_proxied any;
+    gzip_types text/plain text/html text/css text/xml
+               application/x-javascript application/xml
+               application/atom+xml text/javascript;
+
+    proxy_next_upstream error;
+
+    server {
+        listen <span class="number">80</span>;
+        
+        client_max_body_size <span class="number">50</span>M;
+
+        location ^~ /<span class="keyword">static</span>/ {
+            root /<span class="keyword">var</span>/www;
+            <span class="keyword">if</span> (<span class="variable">$query_string</span>) {
+                expires max;
+            }
+        }
+        location = /favicon.ico {
+            rewrite (.*) /<span class="keyword">static</span>/favicon.ico;
+        }
+        location = /robots.txt {
+            rewrite (.*) /<span class="keyword">static</span>/robots.txt;
+        }
+
+        location / {
+            proxy_pass_header Server;
+            proxy_set_header Host <span class="variable">$http_host</span>;
+            proxy_redirect <span class="keyword">false</span>;
+            proxy_set_header X-Real-IP <span class="variable">$remote_addr</span>;
+            proxy_set_header X-Scheme <span class="variable">$scheme</span>;
+            proxy_pass http:<span class="comment">//frontends;</span>
+        }
+    }
+}
+</pre></td></tr></table></figure>
+
+<h3 id="-">系统架构图</h3>
+<p><img src="http://ww2.sinaimg.cn/large/674a21d2gw1ee1vdc95s1j20fo0ej74s.jpg" alt="系统架构"></p>
+<h2 id="-">测试方法</h2>
+<p>服务端部署了一个简单登录逻辑</p>
+<p>使用Siege工具进行压测，使用方法参考：
+<a href="http://www.javaranger.com/archives/1168" target="_blank">http://www.javaranger.com/archives/1168</a></p>
+<p>命令行请求
+<code>siege -c 500 -r 1 &quot;http://192.168.1.150/service/login POST user_id=1&amp;password=123456&quot;</code></p>
+<h2 id="-">测试结果</h2>
+<h3 id="-">单请求</h3>
+<p>针对每个用户发一次请求的情况下，基本可以保持500个用户的并发。
+<img src="http://ww3.sinaimg.cn/large/674a21d2gw1ee1vnb5vukj21k50caahu.jpg" alt="单请求"></p>
+<h3 id="-">多请求</h3>
+<p>考虑到实际情况，可能有一次请求不成功然后发多次请求的情况，以5次为例。
+实际测试发现325个用户，每个用户5次请求，即总1625次请求下，基本达到性能极限，请求成功率99.88%，超过这个数字则产生大量超时请求。
+<img src="http://ww1.sinaimg.cn/large/674a21d2gw1ee1vqvdwc7j21jb0c6aha.jpg" alt="多请求"></p>
+<h3 id="-">总结</h3>
+<p>虽然限于本身硬件问题，树莓派的并发性能不是很好，但作为一个的家用型智能家居自动化核心控制器应当足够用了。</p>
 
       
     </div>
@@ -132,21 +252,19 @@
       <!-- Baidu Share END -->
 
       
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/树莓派/">树莓派</a></li></ul>
+
     </footer>
   </div>
   
     
 <nav id="article-nav">
   
-    <a href="/2014/02/12/sensors-for-raspberry-pi-1/" id="article-nav-newer" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">Newer</strong>
-      <div class="article-nav-title">
-        
-          树莓派适用的传感器(一)
-        
-      </div>
-    </a>
   
+    <a href="/2014/02/25/basic-knowledge-of-ios-development/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">iOS开发基础知识整理</div>
+    </a>
   
 </nav>
 
