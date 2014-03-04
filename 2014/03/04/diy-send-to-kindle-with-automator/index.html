@@ -3,26 +3,18 @@
 <head>
   <meta charset="utf-8">
   
-  <title>基于树莓派搭建的Tornado WebService性能测试 | Shining IO</title>
+  <title>使用Automator工具DIY一个Send to Kindle功能 | Shining IO</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <meta name="og:type" content="blog">
-<meta name="og:title" content="基于树莓派搭建的Tornado WebService性能测试">
-<meta name="og:url" content="http://yoursite.com/2014/03/02/pi-performance-testing-with-tornado-and-nginx/">
-<meta name="og:image" content="http://ww2.sinaimg.cn/large/674a21d2gw1ee1vdc95s1j20fo0ej74s.jpg">
+<meta name="og:title" content="使用Automator工具DIY一个Send to Kindle功能">
+<meta name="og:url" content="http://yoursite.com/2014/03/04/diy-send-to-kindle-with-automator/">
+<meta name="og:image" content="http://ww2.sinaimg.cn/large/674a21d2gw1ee43u8770tj209v03v0so.jpg">
 <meta name="og:site_name" content="Shining IO">
 <meta name="og:description" content="前言
-毕业设计是基于树莓派来折腾一个简易的智能家居系统，其中树莓派作为核心控制器提供服务。虽然知道对于树莓派这样的廉价玩具，在性能上并不会有着出众的表现，不过仍然挺好奇一个单核arm架构的廉价计算机性能究竟如何，于是就自己动手简单测试了下。
+话说Kindle真乃看书神器也，入手Kindle Paperwhite 2 一周不到，已然看完了一本书。唯一美中不足的是传输电子书需要通过数据线，好吧，都移动互联网时代了，还是用线来传数据总是件很low的事。
 
 
-测试环境
-硬件
-树莓派B型
-
-CPU:单核 ARM1176JZF-S（ARM11系列）700MHz
-内存:512MB
-
-软件
-服务器前端放置一个Nginx">
+这个问题Amazon官方必然是有考虑到了，于是就有了Send to Kindle这么一个软件，也有相应的Chrome/Firefox插件。不过别忘了你是在天朝这么一个奇葩地方，国内">
 <meta name="twitter:card" content="summary">
   
     <link rel="alternative" href="/atom.xml" title="Shining IO" type="application/atom+xml">
@@ -71,10 +63,10 @@ CPU:单核 ARM1176JZF-S（ARM11系列）700MHz
   </div>
 </header>
       <div class="outer">
-        <section id="main"><article id="post-pi-performance-testing-with-tornado-and-nginx" class="article article-type-post" itemscope itemprop="blogPost">
+        <section id="main"><article id="post-diy-send-to-kindle-with-automator" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
-    <a href="/2014/03/02/pi-performance-testing-with-tornado-and-nginx/" class="article-date">
-  <time datetime="2014-03-02T15:27:39.000Z" itemprop="datePublished">3月 2 2014</time>
+    <a href="/2014/03/04/diy-send-to-kindle-with-automator/" class="article-date">
+  <time datetime="2014-03-04T14:21:22.000Z" itemprop="datePublished">3月 4 2014</time>
 </a>
     
   </div>
@@ -85,7 +77,7 @@ CPU:单核 ARM1176JZF-S（ARM11系列）700MHz
         
   
     <h1 class="article-title" itemprop="name">
-      基于树莓派搭建的Tornado WebService性能测试
+      使用Automator工具DIY一个Send to Kindle功能
     </h1>
   
 
@@ -94,153 +86,33 @@ CPU:单核 ARM1176JZF-S（ARM11系列）700MHz
     <div class="article-entry" itemprop="articleBody">
       
         <h2 id="-">前言</h2>
-<p>毕业设计是基于树莓派来折腾一个简易的智能家居系统，其中树莓派作为核心控制器提供服务。虽然知道对于树莓派这样的廉价玩具，在性能上并不会有着出众的表现，不过仍然挺好奇一个单核arm架构的廉价计算机性能究竟如何，于是就自己动手简单测试了下。</p>
+<p>话说Kindle真乃看书神器也，入手Kindle Paperwhite 2 一周不到，已然看完了一本书。唯一美中不足的是传输电子书需要通过数据线，好吧，都移动互联网时代了，还是用线来传数据总是件很low的事。</p>
 <a id="more"></a>
 
-<h2 id="-">测试环境</h2>
-<h3 id="-">硬件</h3>
-<p>树莓派B型</p>
+<p>这个问题Amazon官方必然是有考虑到了，于是就有了Send to Kindle这么一个软件，也有相应的Chrome/Firefox插件。不过别忘了你是在天朝这么一个奇葩地方，国内的Amazon账号与米帝账号是无法互通的。因此，对于国行版Kindle而言，前面两条路基本就被堵死了，或许会有一些hack的方法，不过鉴于折腾起来比较麻烦，还是考虑其他方式。</p>
+<p>对于国内用户而说，Amazon官方提供的无线传输方式只有这一种形式。在官网注册好Kindle并配置接收邮箱之后，即可通过这种方式发送自己的文档。这种方式是挺好的，无奈每次都手动发邮件实在效率太低（好吧，我承认其实就是自己太懒），于是考虑了下是否有自动化的方法。作为Mac用户，提到自动化很自然地会想到一个叫做Automator的东西。</p>
+<h2 id="automator">Automator</h2>
+<p>Automator是苹果公司为的Mac OS X系统开发的一款软件。只要通过点击拖拽鼠标等操作就可以将一系列动作组合成一个工作流，从而帮助你自动的（可重复的）完成一些复杂的工作。</p>
+<p>它能横跨很多不同种类的程序，包括：查找器、Safari网络浏览器、iCal、地址簿或者其他的一些程序，除了官方程序，还能和一些第三方的程序一起工作，如微软的Office、Adobe公司的Photoshop或者Pixelmator等。</p>
+<p>Automator实际上是一些列动作（文件重命名，找链接的图片、写邮件等等）组合在一个工作流文档里。工作流文档用来执行一系列的重复劳动，可以保存和重复执行。Unix命令行操作或者AppleScript也可以被当作一个动作在流里面执行。工作流也可以另存为一个程序，一个工作流文件，或者菜单项。</p>
+<h2 id="-">思路</h2>
+<p>我们先来整理下之前手动操作的流程。</p>
+<p><img src="http://ww2.sinaimg.cn/large/674a21d2gw1ee43u8770tj209v03v0so.jpg" alt="操作流程"></p>
+<p>对于以上流程而言，只有一个输入是来自本地硬盘文件，其他都可以通过自动化实现。</p>
+<h2 id="-">实现</h2>
+<p>根据上面的思路，使用Mac下原生的Mail程序，当然，需要提前配置好默认账号为Kindle管理中认可的发件人账号。</p>
+<p>实现步骤如下：</p>
 <ul>
-<li>CPU:单核 ARM1176JZF-S（ARM11系列）700MHz</li>
-<li>内存:512MB</li>
+<li><p>使用Automator新建一个应用程序，这种类型可以使用文件或者文件夹作为输入。</p>
+</li>
+<li><p>在Automator中添加新建邮件的操作，收件人是自己的kindle邮箱，主题随意。</p>
+</li>
+<li><p>添加附件和发送邮件操作，其中添加附件这步操作会自动从输入流的取文件数据。</p>
+</li>
 </ul>
-<h3 id="-">软件</h3>
-<p>服务器前端放置一个Nginx来处理静态请求，动态的则转发给Tornado来处理，后端使用SQLAlchemy作为ORM，连接MySQL数据库。</p>
-<p>根据Tornado官方文档，来配置了Nginx转发请求。
-参考：<a href="http://www.tornadoweb.cn/documentation" target="_blank">http://www.tornadoweb.cn/documentation</a></p>
-<p>主要配置点如下：</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre>1
-2
-3
-4
-5
-6
-7
-8
-9
-10
-11
-12
-13
-14
-15
-16
-17
-18
-19
-20
-21
-22
-23
-24
-25
-26
-27
-28
-29
-30
-31
-32
-33
-34
-35
-36
-37
-38
-39
-40
-41
-42
-43
-44
-45
-46
-47
-48
-49
-50
-51
-52
-53
-54
-55
-56
-</pre></td><td class="code"><pre> <span class="comment"># 针对单核处理器，仅配置一个worker进程</span>
-worker_processes <span class="number">1</span>;
-
-http {
-    <span class="comment"># 转发请求到本地8080端口的Tornado服务器，同样只使用一个进程</span>
-    upstream frontends {
-        server <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">8080</span>;
-    }
-
-    <span class="keyword">include</span> /etc/nginx/mime.types;
-    default_type application/octet-stream;
-
-    access_log /<span class="keyword">var</span>/log/nginx/access.log;
-
-    keepalive_timeout <span class="number">65</span>;
-    proxy_read_timeout <span class="number">200</span>;
-    sendfile on;
-    tcp_nopush on;
-    tcp_nodelay on;
-    gzip on;
-    gzip_min_length <span class="number">1000</span>;
-    gzip_proxied any;
-    gzip_types text/plain text/html text/css text/xml
-               application/x-javascript application/xml
-               application/atom+xml text/javascript;
-
-    proxy_next_upstream error;
-
-    server {
-        listen <span class="number">80</span>;
-        
-        client_max_body_size <span class="number">50</span>M;
-
-        location ^~ /<span class="keyword">static</span>/ {
-            root /<span class="keyword">var</span>/www;
-            <span class="keyword">if</span> (<span class="variable">$query_string</span>) {
-                expires max;
-            }
-        }
-        location = /favicon.ico {
-            rewrite (.*) /<span class="keyword">static</span>/favicon.ico;
-        }
-        location = /robots.txt {
-            rewrite (.*) /<span class="keyword">static</span>/robots.txt;
-        }
-
-        location / {
-            proxy_pass_header Server;
-            proxy_set_header Host <span class="variable">$http_host</span>;
-            proxy_redirect <span class="keyword">false</span>;
-            proxy_set_header X-Real-IP <span class="variable">$remote_addr</span>;
-            proxy_set_header X-Scheme <span class="variable">$scheme</span>;
-            proxy_pass http:<span class="comment">//frontends;</span>
-        }
-    }
-}
-</pre></td></tr></table></figure>
-
-<h3 id="-">系统架构图</h3>
-<p><img src="http://ww2.sinaimg.cn/large/674a21d2gw1ee1vdc95s1j20fo0ej74s.jpg" alt="系统架构"></p>
-<h2 id="-">测试方法</h2>
-<p>服务端部署了一个简单登录逻辑</p>
-<p>使用Siege工具进行压测，使用方法参考：
-<a href="http://www.javaranger.com/archives/1168" target="_blank">http://www.javaranger.com/archives/1168</a></p>
-<p>命令行请求
-<code>siege -c 500 -r 1 &quot;http://192.168.1.150/service/login POST user_id=1&amp;password=123456&quot;</code></p>
-<h2 id="-">测试结果</h2>
-<h3 id="-">单请求</h3>
-<p>针对每个用户发一次请求的情况下，基本可以保持500个用户的并发。
-<img src="http://ww3.sinaimg.cn/large/674a21d2gw1ee1vnb5vukj21k50caahu.jpg" alt="单请求"></p>
-<h3 id="-">多请求</h3>
-<p>考虑到实际情况，可能有一次请求不成功然后发多次请求的情况，以5次为例。
-实际测试发现325个用户，每个用户5次请求，即总1625次请求下，基本达到性能极限，请求成功率99.88%，超过这个数字则产生大量超时请求。
-<img src="http://ww1.sinaimg.cn/large/674a21d2gw1ee1vqvdwc7j21jb0c6aha.jpg" alt="多请求"></p>
-<h3 id="-">总结</h3>
-<p>虽然限于本身硬件问题，树莓派的并发性能不是很好，但作为一个的家用型智能家居自动化核心控制器应当足够用了。</p>
+<p>完成后导出，使用时将需要发送的文件拖拉到Automator程序上即可。</p>
+<p>完整的实现如下图：
+<img src="http://ww4.sinaimg.cn/large/674a21d2gw1ee44rrndavj20w011gwkf.jpg" alt="automator"></p>
 
       
     </div>
@@ -252,7 +124,7 @@ http {
       <!-- Baidu Share END -->
 
       
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/树莓派/">树莓派</a></li></ul>
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Automator/">Automator</a></li></ul>
 
     </footer>
   </div>
@@ -260,19 +132,10 @@ http {
     
 <nav id="article-nav">
   
-    <a href="/2014/03/04/diy-send-to-kindle-with-automator/" id="article-nav-newer" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">Newer</strong>
-      <div class="article-nav-title">
-        
-          使用Automator工具DIY一个Send to Kindle功能
-        
-      </div>
-    </a>
   
-  
-    <a href="/2014/02/25/basic-knowledge-of-ios-development/" id="article-nav-older" class="article-nav-link-wrap">
+    <a href="/2014/03/02/pi-performance-testing-with-tornado-and-nginx/" id="article-nav-older" class="article-nav-link-wrap">
       <strong class="article-nav-caption">Older</strong>
-      <div class="article-nav-title">iOS开发基础知识整理</div>
+      <div class="article-nav-title">基于树莓派搭建的Tornado WebService性能测试</div>
     </a>
   
 </nav>

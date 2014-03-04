@@ -4,7 +4,7 @@
   
   <link href="/atom.xml" rel="self"/>
   <link href="http://yoursite.com/"/>
-  <updated>2014-03-02T16:57:23.927Z</updated>
+  <updated>2014-03-04T15:46:58.465Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -13,6 +13,49 @@
   </author>
   
   <generator uri="http://zespia.tw/hexo/">Hexo</generator>
+  
+  <entry>
+    <title><![CDATA[使用Automator工具DIY一个Send to Kindle功能]]></title>
+    <link href="http://yoursite.com/2014/03/04/diy-send-to-kindle-with-automator/"/>
+    <id>http://yoursite.com/2014/03/04/diy-send-to-kindle-with-automator/</id>
+    <published>2014-03-04T14:21:22.000Z</published>
+    <updated>2014-03-04T15:46:37.000Z</updated>
+    <content type="html"><![CDATA[<h2 id="-">前言</h2>
+<p>话说Kindle真乃看书神器也，入手Kindle Paperwhite 2 一周不到，已然看完了一本书。唯一美中不足的是传输电子书需要通过数据线，好吧，都移动互联网时代了，还是用线来传数据总是件很low的事。</p>
+<a id="more"></a>
+
+<p>这个问题Amazon官方必然是有考虑到了，于是就有了Send to Kindle这么一个软件，也有相应的Chrome/Firefox插件。不过别忘了你是在天朝这么一个奇葩地方，国内的Amazon账号与米帝账号是无法互通的。因此，对于国行版Kindle而言，前面两条路基本就被堵死了，或许会有一些hack的方法，不过鉴于折腾起来比较麻烦，还是考虑其他方式。</p>
+<p>对于国内用户而说，Amazon官方提供的无线传输方式只有这一种形式。在官网注册好Kindle并配置接收邮箱之后，即可通过这种方式发送自己的文档。这种方式是挺好的，无奈每次都手动发邮件实在效率太低（好吧，我承认其实就是自己太懒），于是考虑了下是否有自动化的方法。作为Mac用户，提到自动化很自然地会想到一个叫做Automator的东西。</p>
+<h2 id="automator">Automator</h2>
+<p>Automator是苹果公司为的Mac OS X系统开发的一款软件。只要通过点击拖拽鼠标等操作就可以将一系列动作组合成一个工作流，从而帮助你自动的（可重复的）完成一些复杂的工作。</p>
+<p>它能横跨很多不同种类的程序，包括：查找器、Safari网络浏览器、iCal、地址簿或者其他的一些程序，除了官方程序，还能和一些第三方的程序一起工作，如微软的Office、Adobe公司的Photoshop或者Pixelmator等。</p>
+<p>Automator实际上是一些列动作（文件重命名，找链接的图片、写邮件等等）组合在一个工作流文档里。工作流文档用来执行一系列的重复劳动，可以保存和重复执行。Unix命令行操作或者AppleScript也可以被当作一个动作在流里面执行。工作流也可以另存为一个程序，一个工作流文件，或者菜单项。</p>
+<h2 id="-">思路</h2>
+<p>我们先来整理下之前手动操作的流程。</p>
+<p><img src="http://ww2.sinaimg.cn/large/674a21d2gw1ee43u8770tj209v03v0so.jpg" alt="操作流程"></p>
+<p>对于以上流程而言，只有一个输入是来自本地硬盘文件，其他都可以通过自动化实现。</p>
+<h2 id="-">实现</h2>
+<p>根据上面的思路，使用Mac下原生的Mail程序，当然，需要提前配置好默认账号为Kindle管理中认可的发件人账号。</p>
+<p>实现步骤如下：</p>
+<ul>
+<li><p>使用Automator新建一个应用程序，这种类型可以使用文件或者文件夹作为输入。</p>
+</li>
+<li><p>在Automator中添加新建邮件的操作，收件人是自己的kindle邮箱，主题随意。</p>
+</li>
+<li><p>添加附件和发送邮件操作，其中添加附件这步操作会自动从输入流的取文件数据。</p>
+</li>
+</ul>
+<p>完成后导出，使用时将需要发送的文件拖拉到Automator程序上即可。</p>
+<p>完整的实现如下图：
+<img src="http://ww4.sinaimg.cn/large/674a21d2gw1ee44rrndavj20w011gwkf.jpg" alt="automator"></p>
+]]></content>
+    <summary type="html"><![CDATA[<h2 id="-">前言</h2>
+<p>话说Kindle真乃看书神器也，入手Kindle Paperwhite 2 一周不到，已然看完了一本书。唯一美中不足的是传输电子书需要通过数据线，好吧，都移动互联网时代了，还是用线来传数据总是件很low的事。</p>
+]]></summary>
+    
+      <category term="Automator" scheme="http://yoursite.com/tags/Automator/"/>
+    
+  </entry>
   
   <entry>
     <title><![CDATA[基于树莓派搭建的Tornado WebService性能测试]]></title>
