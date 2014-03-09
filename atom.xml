@@ -4,7 +4,7 @@
   
   <link href="/atom.xml" rel="self"/>
   <link href="http://yoursite.com/"/>
-  <updated>2014-03-06T11:12:43.974Z</updated>
+  <updated>2014-03-09T12:27:31.270Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -13,6 +13,195 @@
   </author>
   
   <generator uri="http://zespia.tw/hexo/">Hexo</generator>
+  
+  <entry>
+    <title><![CDATA[初学AFNetworking网络通信类库]]></title>
+    <link href="http://yoursite.com/2014/03/09/getting-started-with-afnetworking/"/>
+    <id>http://yoursite.com/2014/03/09/getting-started-with-afnetworking/</id>
+    <published>2014-03-09T12:27:25.000Z</published>
+    <updated>2014-03-09T12:27:25.000Z</updated>
+    <content type="html"><![CDATA[<h2 id="-">前言</h2>
+<p>从Android转过来学iOS开发也快一年了，之前在公司的几个项目在网络通信方面都是使用的ASIHttpRequest。ASI很稳定，效率也不错，可惜的是这个开源项目已经停止更新多年了，甚至连ARC也不支持。手机淘宝这样比较早的项目，大多是基于ASI自己做了一层浅的封装，貌似去年有经过一次大的重构，不过ASI还是留下了。对于ASI这类处于相对底层的依赖库，老项目迁移的成本的确太大了。</p>
+<a id="more"></a>
+
+<p>之前在开发中也会遇到Profile检测出的内存泄漏，发现不少都是来自ASI，虽然对于单个的内存泄漏而言并不算多，但积少成多总是个问题。加之iOS系统的不断更新，一个不更新的类库难免会跟不上时代。综合考虑之下，觉得现在新起的项目还是使用AFNetworking更好一点。于是，特地抽空学了一下<a href="https://github.com/AFNetworking/AFNetworking" target="_blank">AFNetworking</a>这个类库的基本使用。</p>
+<h2 id="-">概览</h2>
+<p>根据源码里面的类结构，简单画了下AFNetworking的结构图
+<img src="http://ww3.sinaimg.cn/large/674a21d2gw1ee9oop21gcj20h40e475j.jpg" alt="AFNetworking"></p>
+<p>如上图，AFNetworking有5个主要的包。</p>
+<ul>
+<li>NSURLConnection 核心的网络请求功能，继承自NSOperation</li>
+<li>NSURLSession 针对iOS7新增的后台多任务（Multitasking），可以在后台进行数据下载等处理</li>
+<li>Security 针对SSL Pinning的封装，用于防止中间人攻击</li>
+<li>Reachablity 用于检测网络状况</li>
+<li>Serizalization 可序列化的Request和Response对象封装</li>
+</ul>
+<h2 id="-">基本网络请求</h2>
+<p>官方推荐优先使用AFHTTPRequestOperationManager进行网络请求。</p>
+<h3 id="get-">Get 请求</h3>
+<figure class="highlight [objc]"><table><tr><td class="gutter"><pre>1
+2
+3
+4
+5
+6
+</pre></td><td class="code"><pre>AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
+[manager GET:@<span class="string">"http://example.com/resources.json"</span> parameters:<span class="literal">nil</span> success:^(AFHTTPRequestOperation *operation, <span class="keyword">id</span> responseObject) {
+    <span class="built_in">NSLog</span>(@<span class="string">"JSON: %@"</span>, responseObject);
+} failure:^(AFHTTPRequestOperation *operation, <span class="built_in">NSError</span> *error) {
+    <span class="built_in">NSLog</span>(@<span class="string">"Error: %@"</span>, error);
+}];
+</pre></td></tr></table></figure>
+
+<h3 id="post-url-form-encoded-">POST请求(URL-Form-Encoded)</h3>
+<figure class="highlight [objc]"><table><tr><td class="gutter"><pre>1
+2
+3
+4
+5
+6
+7
+</pre></td><td class="code"><pre>AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
+<span class="built_in">NSDictionary</span> *parameters = @{@<span class="string">"foo"</span>: @<span class="string">"bar"</span>};
+[manager POST:@<span class="string">"http://example.com/resources.json"</span> parameters:parameters success:^(AFHTTPRequestOperation *operation, <span class="keyword">id</span> responseObject) {
+    <span class="built_in">NSLog</span>(@<span class="string">"JSON: %@"</span>, responseObject);
+} failure:^(AFHTTPRequestOperation *operation, <span class="built_in">NSError</span> *error) {
+    <span class="built_in">NSLog</span>(@<span class="string">"Error: %@"</span>, error);
+}];
+</pre></td></tr></table></figure>
+
+<h3 id="post-multi-part-">POST请求(Multi-Part)</h3>
+<figure class="highlight [objc]"><table><tr><td class="gutter"><pre>1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+</pre></td><td class="code"><pre>AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
+<span class="built_in">NSDictionary</span> *parameters = @{@<span class="string">"foo"</span>: @<span class="string">"bar"</span>};
+<span class="built_in">NSURL</span> *filePath = [<span class="built_in">NSURL</span> fileURLWithPath:@<span class="string">"file://path/to/image.png"</span>];
+[manager POST:@<span class="string">"http://example.com/resources.json"</span> parameters:parameters constructingBodyWithBlock:^(<span class="keyword">id</span>&lt;AFMultipartFormData&gt; formData) {
+    [formData appendPartWithFileURL:filePath name:@<span class="string">"image"</span> error:<span class="literal">nil</span>];
+} success:^(AFHTTPRequestOperation *operation, <span class="keyword">id</span> responseObject) {
+    <span class="built_in">NSLog</span>(@<span class="string">"Success: %@"</span>, responseObject);
+} failure:^(AFHTTPRequestOperation *operation, <span class="built_in">NSError</span> *error) {
+    <span class="built_in">NSLog</span>(@<span class="string">"Error: %@"</span>, error);
+}];
+</pre></td></tr></table></figure>
+
+<h3 id="-">批量请求</h3>
+<p>针对一次性要发送多个请求的情况，可以使用AFURLConnectionOperation。</p>
+<figure class="highlight [objc]"><table><tr><td class="gutter"><pre>1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+</pre></td><td class="code"><pre><span class="built_in">NSMutableArray</span> *mutableOperations = [<span class="built_in">NSMutableArray</span> array];
+<span class="keyword">for</span> (<span class="built_in">NSURL</span> *fileURL in filesToUpload) {
+    <span class="built_in">NSURLRequest</span> *request = [[AFHTTPRequestSerializer serializer] multipartFormRequestWithMethod:@<span class="string">"POST"</span> URLString:@<span class="string">"http://example.com/upload"</span> parameters:<span class="literal">nil</span> constructingBodyWithBlock:^(<span class="keyword">id</span>&lt;AFMultipartFormData&gt; formData) {
+        [formData appendPartWithFileURL:fileURL name:@<span class="string">"images[]"</span> error:<span class="literal">nil</span>];
+    }];
+
+    AFHTTPRequestOperation *operation = [[AFHTTPRequestOperation alloc] initWithRequest:request];
+
+    [mutableOperations addObject:operation];
+}
+
+<span class="built_in">NSArray</span> *operations = [AFURLConnectionOperation batchOfRequestOperations:@[...] progressBlock:^(NSUInteger numberOfFinishedOperations, NSUInteger totalNumberOfOperations) {
+    <span class="built_in">NSLog</span>(@<span class="string">"%lu of %lu complete"</span>, numberOfFinishedOperations, totalNumberOfOperations);
+} completionBlock:^(<span class="built_in">NSArray</span> *operations) {
+    <span class="built_in">NSLog</span>(@<span class="string">"All operations in batch complete"</span>);
+}];
+[[NSOperationQueue mainQueue] addOperations:operations waitUntilFinished:<span class="literal">NO</span>];
+</pre></td></tr></table></figure>
+
+<h2 id="-ios7-">后台多任务（iOS7新特性）</h2>
+<p>针对iOS 7新的Multitasking特性，系统提供了NSURLSession这个新的网络接口，这个接口与原有的NSURLConnection实际上是并列的。程序处于前台运行状态中，这两者可以互相替代，在程序处于后台时，使用这个新接口可以免于被系统自动截断数据传输，一般用于后台下载功能，AFNetworking2.0开始针对这个接口进行了封装。</p>
+<p>示例代码：</p>
+<figure class="highlight [objc]"><table><tr><td class="gutter"><pre>1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+</pre></td><td class="code"><pre>NSURLSessionConfiguration *configuration = [NSURLSessionConfiguration defaultSessionConfiguration];
+AFURLSessionManager *manager = [[AFURLSessionManager alloc] initWithSessionConfiguration:configuration];
+
+<span class="built_in">NSURL</span> *URL = [<span class="built_in">NSURL</span> URLWithString:@<span class="string">"http://example.com/download.zip"</span>];
+<span class="built_in">NSURLRequest</span> *request = [<span class="built_in">NSURLRequest</span> requestWithURL:URL];
+
+NSURLSessionDownloadTask *downloadTask = [manager downloadTaskWithRequest:request progress:<span class="literal">nil</span> destination:^<span class="built_in">NSURL</span> *(<span class="built_in">NSURL</span> *targetPath, NSURLResponse *response) {
+    <span class="built_in">NSURL</span> *documentsDirectoryPath = [<span class="built_in">NSURL</span> fileURLWithPath:[NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, <span class="literal">YES</span>) firstObject]];
+    <span class="keyword">return</span> [documentsDirectoryPath URLByAppendingPathComponent:[response suggestedFilename]];
+} completionHandler:^(NSURLResponse *response, <span class="built_in">NSURL</span> *filePath, <span class="built_in">NSError</span> *error) {
+    <span class="built_in">NSLog</span>(@<span class="string">"File downloaded to: %@"</span>, filePath);
+}];
+[downloadTask resume];
+</pre></td></tr></table></figure>
+
+<h2 id="-">实时推送</h2>
+<p>在<a href="http://cocoadocs.org/" target="_blank">CocoaDocs</a>查看文档的时候发现在2.0RC版中是带有AFEventSource的，在2.0正式版之后似乎把这个模块给独立出来了，Github上AFNetworking的主项目是没有该特性的，而是放到了<a href="https://github.com/AFNetworking/AFRocketClient" target="_blank">AFRocketClient</a>这个子项目中。</p>
+<p>AFEventSource实际上是基于OC实现的<a href="http://en.wikipedia.org/wiki/Server-sent_events" target="_blank">EventSource DOM API</a>，其本质是在客户端和服务端之间建立长连接进行实时推送。</p>
+<p>示例代码：</p>
+<figure class="highlight [objc]"><table><tr><td class="gutter"><pre>1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+</pre></td><td class="code"><pre><span class="built_in">NSURL</span> *URL = [<span class="built_in">NSURL</span> URLWithString:@<span class="string">"http://example.com"</span>];
+AFRocketClient *client = [[AFRocketClient alloc] init];
+[client SUBSCRIBE:@<span class="string">"/resources"</span> usingBlock:^(<span class="built_in">NSArray</span> *operations, <span class="built_in">NSError</span> *error) {
+    <span class="keyword">for</span> (AFJSONPatchOperation *operation in operations) {
+        <span class="keyword">switch</span> (operation<span class="variable">.type</span>) {
+            <span class="keyword">case</span> AFJSONAddOperationType:
+                [resources addObject:operation<span class="variable">.value</span>];
+                <span class="keyword">break</span>;
+            <span class="keyword">default</span>:
+                <span class="keyword">break</span>;
+        }
+    }
+} error:<span class="literal">nil</span>]
+</pre></td></tr></table></figure>
+
+]]></content>
+    <summary type="html"><![CDATA[<h2 id="-">前言</h2>
+<p>从Android转过来学iOS开发也快一年了，之前在公司的几个项目在网络通信方面都是使用的ASIHttpRequest。ASI很稳定，效率也不错，可惜的是这个开源项目已经停止更新多年了，甚至连ARC也不支持。手机淘宝这样比较早的项目，大多是基于ASI自己做了一层浅的封装，貌似去年有经过一次大的重构，不过ASI还是留下了。对于ASI这类处于相对底层的依赖库，老项目迁移的成本的确太大了。</p>
+]]></summary>
+    
+      <category term="iOS" scheme="http://yoursite.com/tags/iOS/"/>
+    
+  </entry>
   
   <entry>
     <title><![CDATA[通过Hexo初始化源码学习Node.js]]></title>

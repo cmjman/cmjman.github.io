@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>初学AFNetworking网络通信类库 | Shining IO</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="og:type" content="blog">
+<meta name="og:title" content="初学AFNetworking网络通信类库">
+<meta name="og:url" content="http://yoursite.com/2014/03/09/getting-started-with-afnetworking/">
+<meta name="og:image" content="http://ww3.sinaimg.cn/large/674a21d2gw1ee9oop21gcj20h40e475j.jpg">
+<meta name="og:site_name" content="Shining IO">
+<meta name="og:description" content="前言
+从Android转过来学iOS开发也快一年了，之前在公司的几个项目在网络通信方面都是使用的ASIHttpRequest。ASI很稳定，效率也不错，可惜的是这个开源项目已经停止更新多年了，甚至连ARC也不支持。手机淘宝这样比较早的项目，大多是基于ASI自己做了一层浅的封装，貌似去年有经过一次大的重构，不过ASI还是留下了。对于ASI这类处于相对底层的依赖库，老项目迁移的成本的确太大了。
+
+
+之">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternative" href="/atom.xml" title="Shining IO" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  <link href="http://fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="/css/style.css" type="text/css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+</head>
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Shining IO</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">首页</a>
+        
+          <a class="main-nav-link" href="/archives">存档</a>
+        
+          <a class="main-nav-link" href="/about">关于</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><input type="submit" value="&#xF002;" class="search-form-submit"><input type="hidden" name="q" value="site:http://yoursite.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-getting-started-with-afnetworking" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2014/03/09/getting-started-with-afnetworking/" class="article-date">
+  <time datetime="2014-03-09T12:27:25.000Z" itemprop="datePublished">3月 9 2014</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      初学AFNetworking网络通信类库
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="-">前言</h2>
+<p>从Android转过来学iOS开发也快一年了，之前在公司的几个项目在网络通信方面都是使用的ASIHttpRequest。ASI很稳定，效率也不错，可惜的是这个开源项目已经停止更新多年了，甚至连ARC也不支持。手机淘宝这样比较早的项目，大多是基于ASI自己做了一层浅的封装，貌似去年有经过一次大的重构，不过ASI还是留下了。对于ASI这类处于相对底层的依赖库，老项目迁移的成本的确太大了。</p>
+<a id="more"></a>
+
+<p>之前在开发中也会遇到Profile检测出的内存泄漏，发现不少都是来自ASI，虽然对于单个的内存泄漏而言并不算多，但积少成多总是个问题。加之iOS系统的不断更新，一个不更新的类库难免会跟不上时代。综合考虑之下，觉得现在新起的项目还是使用AFNetworking更好一点。于是，特地抽空学了一下<a href="https://github.com/AFNetworking/AFNetworking" target="_blank">AFNetworking</a>这个类库的基本使用。</p>
+<h2 id="-">概览</h2>
+<p>根据源码里面的类结构，简单画了下AFNetworking的结构图
+<img src="http://ww3.sinaimg.cn/large/674a21d2gw1ee9oop21gcj20h40e475j.jpg" alt="AFNetworking"></p>
+<p>如上图，AFNetworking有5个主要的包。</p>
+<ul>
+<li>NSURLConnection 核心的网络请求功能，继承自NSOperation</li>
+<li>NSURLSession 针对iOS7新增的后台多任务（Multitasking），可以在后台进行数据下载等处理</li>
+<li>Security 针对SSL Pinning的封装，用于防止中间人攻击</li>
+<li>Reachablity 用于检测网络状况</li>
+<li>Serizalization 可序列化的Request和Response对象封装</li>
+</ul>
+<h2 id="-">基本网络请求</h2>
+<p>官方推荐优先使用AFHTTPRequestOperationManager进行网络请求。</p>
+<h3 id="get-">Get 请求</h3>
+<figure class="highlight [objc]"><table><tr><td class="gutter"><pre>1
+2
+3
+4
+5
+6
+</pre></td><td class="code"><pre>AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
+[manager GET:@<span class="string">"http://example.com/resources.json"</span> parameters:<span class="literal">nil</span> success:^(AFHTTPRequestOperation *operation, <span class="keyword">id</span> responseObject) {
+    <span class="built_in">NSLog</span>(@<span class="string">"JSON: %@"</span>, responseObject);
+} failure:^(AFHTTPRequestOperation *operation, <span class="built_in">NSError</span> *error) {
+    <span class="built_in">NSLog</span>(@<span class="string">"Error: %@"</span>, error);
+}];
+</pre></td></tr></table></figure>
+
+<h3 id="post-url-form-encoded-">POST请求(URL-Form-Encoded)</h3>
+<figure class="highlight [objc]"><table><tr><td class="gutter"><pre>1
+2
+3
+4
+5
+6
+7
+</pre></td><td class="code"><pre>AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
+<span class="built_in">NSDictionary</span> *parameters = @{@<span class="string">"foo"</span>: @<span class="string">"bar"</span>};
+[manager POST:@<span class="string">"http://example.com/resources.json"</span> parameters:parameters success:^(AFHTTPRequestOperation *operation, <span class="keyword">id</span> responseObject) {
+    <span class="built_in">NSLog</span>(@<span class="string">"JSON: %@"</span>, responseObject);
+} failure:^(AFHTTPRequestOperation *operation, <span class="built_in">NSError</span> *error) {
+    <span class="built_in">NSLog</span>(@<span class="string">"Error: %@"</span>, error);
+}];
+</pre></td></tr></table></figure>
+
+<h3 id="post-multi-part-">POST请求(Multi-Part)</h3>
+<figure class="highlight [objc]"><table><tr><td class="gutter"><pre>1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+</pre></td><td class="code"><pre>AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
+<span class="built_in">NSDictionary</span> *parameters = @{@<span class="string">"foo"</span>: @<span class="string">"bar"</span>};
+<span class="built_in">NSURL</span> *filePath = [<span class="built_in">NSURL</span> fileURLWithPath:@<span class="string">"file://path/to/image.png"</span>];
+[manager POST:@<span class="string">"http://example.com/resources.json"</span> parameters:parameters constructingBodyWithBlock:^(<span class="keyword">id</span>&lt;AFMultipartFormData&gt; formData) {
+    [formData appendPartWithFileURL:filePath name:@<span class="string">"image"</span> error:<span class="literal">nil</span>];
+} success:^(AFHTTPRequestOperation *operation, <span class="keyword">id</span> responseObject) {
+    <span class="built_in">NSLog</span>(@<span class="string">"Success: %@"</span>, responseObject);
+} failure:^(AFHTTPRequestOperation *operation, <span class="built_in">NSError</span> *error) {
+    <span class="built_in">NSLog</span>(@<span class="string">"Error: %@"</span>, error);
+}];
+</pre></td></tr></table></figure>
+
+<h3 id="-">批量请求</h3>
+<p>针对一次性要发送多个请求的情况，可以使用AFURLConnectionOperation。</p>
+<figure class="highlight [objc]"><table><tr><td class="gutter"><pre>1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+</pre></td><td class="code"><pre><span class="built_in">NSMutableArray</span> *mutableOperations = [<span class="built_in">NSMutableArray</span> array];
+<span class="keyword">for</span> (<span class="built_in">NSURL</span> *fileURL in filesToUpload) {
+    <span class="built_in">NSURLRequest</span> *request = [[AFHTTPRequestSerializer serializer] multipartFormRequestWithMethod:@<span class="string">"POST"</span> URLString:@<span class="string">"http://example.com/upload"</span> parameters:<span class="literal">nil</span> constructingBodyWithBlock:^(<span class="keyword">id</span>&lt;AFMultipartFormData&gt; formData) {
+        [formData appendPartWithFileURL:fileURL name:@<span class="string">"images[]"</span> error:<span class="literal">nil</span>];
+    }];
+
+    AFHTTPRequestOperation *operation = [[AFHTTPRequestOperation alloc] initWithRequest:request];
+
+    [mutableOperations addObject:operation];
+}
+
+<span class="built_in">NSArray</span> *operations = [AFURLConnectionOperation batchOfRequestOperations:@[...] progressBlock:^(NSUInteger numberOfFinishedOperations, NSUInteger totalNumberOfOperations) {
+    <span class="built_in">NSLog</span>(@<span class="string">"%lu of %lu complete"</span>, numberOfFinishedOperations, totalNumberOfOperations);
+} completionBlock:^(<span class="built_in">NSArray</span> *operations) {
+    <span class="built_in">NSLog</span>(@<span class="string">"All operations in batch complete"</span>);
+}];
+[[NSOperationQueue mainQueue] addOperations:operations waitUntilFinished:<span class="literal">NO</span>];
+</pre></td></tr></table></figure>
+
+<h2 id="-ios7-">后台多任务（iOS7新特性）</h2>
+<p>针对iOS 7新的Multitasking特性，系统提供了NSURLSession这个新的网络接口，这个接口与原有的NSURLConnection实际上是并列的。程序处于前台运行状态中，这两者可以互相替代，在程序处于后台时，使用这个新接口可以免于被系统自动截断数据传输，一般用于后台下载功能，AFNetworking2.0开始针对这个接口进行了封装。</p>
+<p>示例代码：</p>
+<figure class="highlight [objc]"><table><tr><td class="gutter"><pre>1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+</pre></td><td class="code"><pre>NSURLSessionConfiguration *configuration = [NSURLSessionConfiguration defaultSessionConfiguration];
+AFURLSessionManager *manager = [[AFURLSessionManager alloc] initWithSessionConfiguration:configuration];
+
+<span class="built_in">NSURL</span> *URL = [<span class="built_in">NSURL</span> URLWithString:@<span class="string">"http://example.com/download.zip"</span>];
+<span class="built_in">NSURLRequest</span> *request = [<span class="built_in">NSURLRequest</span> requestWithURL:URL];
+
+NSURLSessionDownloadTask *downloadTask = [manager downloadTaskWithRequest:request progress:<span class="literal">nil</span> destination:^<span class="built_in">NSURL</span> *(<span class="built_in">NSURL</span> *targetPath, NSURLResponse *response) {
+    <span class="built_in">NSURL</span> *documentsDirectoryPath = [<span class="built_in">NSURL</span> fileURLWithPath:[NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, <span class="literal">YES</span>) firstObject]];
+    <span class="keyword">return</span> [documentsDirectoryPath URLByAppendingPathComponent:[response suggestedFilename]];
+} completionHandler:^(NSURLResponse *response, <span class="built_in">NSURL</span> *filePath, <span class="built_in">NSError</span> *error) {
+    <span class="built_in">NSLog</span>(@<span class="string">"File downloaded to: %@"</span>, filePath);
+}];
+[downloadTask resume];
+</pre></td></tr></table></figure>
+
+<h2 id="-">实时推送</h2>
+<p>在<a href="http://cocoadocs.org/" target="_blank">CocoaDocs</a>查看文档的时候发现在2.0RC版中是带有AFEventSource的，在2.0正式版之后似乎把这个模块给独立出来了，Github上AFNetworking的主项目是没有该特性的，而是放到了<a href="https://github.com/AFNetworking/AFRocketClient" target="_blank">AFRocketClient</a>这个子项目中。</p>
+<p>AFEventSource实际上是基于OC实现的<a href="http://en.wikipedia.org/wiki/Server-sent_events" target="_blank">EventSource DOM API</a>，其本质是在客户端和服务端之间建立长连接进行实时推送。</p>
+<p>示例代码：</p>
+<figure class="highlight [objc]"><table><tr><td class="gutter"><pre>1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+</pre></td><td class="code"><pre><span class="built_in">NSURL</span> *URL = [<span class="built_in">NSURL</span> URLWithString:@<span class="string">"http://example.com"</span>];
+AFRocketClient *client = [[AFRocketClient alloc] init];
+[client SUBSCRIBE:@<span class="string">"/resources"</span> usingBlock:^(<span class="built_in">NSArray</span> *operations, <span class="built_in">NSError</span> *error) {
+    <span class="keyword">for</span> (AFJSONPatchOperation *operation in operations) {
+        <span class="keyword">switch</span> (operation<span class="variable">.type</span>) {
+            <span class="keyword">case</span> AFJSONAddOperationType:
+                [resources addObject:operation<span class="variable">.value</span>];
+                <span class="keyword">break</span>;
+            <span class="keyword">default</span>:
+                <span class="keyword">break</span>;
+        }
+    }
+} error:<span class="literal">nil</span>]
+</pre></td></tr></table></figure>
+
+
+      
+    </div>
+    <footer class="article-footer">
+      
+      <!-- Baidu Share BEGIN -->
+        <div class="bdsharebuttonbox"><a href="#" class="bds_more" data-cmd="more"></a><a href="#" class="bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a><a href="#" class="bds_weixin" data-cmd="weixin" title="分享到微信"></a><a href="#" class="bds_renren" data-cmd="renren" title="分享到人人网"></a><a href="#" class="bds_mail" data-cmd="mail" title="分享到邮件分享"></a><a href="#" class="bds_copy" data-cmd="copy" title="分享到复制网址"></a></div>
+        <script>window._bd_share_config={"common":{"bdSnsKey":{},"bdText":"","bdMini":"1","bdMiniList":false,"bdPic":"","bdStyle":"1","bdSize":"16"},"share":{}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];</script>
+      <!-- Baidu Share END -->
+
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/iOS/">iOS</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2014/03/06/learn-nodejs-with-hexo-source-code/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">通过Hexo初始化源码学习Node.js</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+<section id="comments">
+  <!-- Duoshuo Comment BEGIN -->
+  <div class="ds-thread"></div>
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"cmjman"};
+      (function() {
+        var ds = document.createElement('script');
+        ds.type = 'text/javascript';ds.async = true;
+        ds.src = 'http://static.duoshuo.com/embed.js';
+        ds.charset = 'UTF-8';
+        (document.getElementsByTagName('head')[0] 
+        || document.getElementsByTagName('body')[0]).appendChild(ds);
+      })();
+  </script>
+  <!-- Duoshuo Comment END -->
+</section>
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Automator/">Automator</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Hexo/">Hexo</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/iOS/">iOS</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/树莓派/">树莓派</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/译文/">译文</a><span class="tag-list-count">2</span></li></ul>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/Automator/" style="font-size: 10.00px;">Automator</a><a href="/tags/Hexo/" style="font-size: 10.00px;">Hexo</a><a href="/tags/iOS/" style="font-size: 20.00px;">iOS</a><a href="/tags/树莓派/" style="font-size: 10.00px;">树莓派</a><a href="/tags/译文/" style="font-size: 20.00px;">译文</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/03">三月 2014</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/02">二月 2014</a><span class="archive-list-count">5</span></li></ul>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recents</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2014/03/09/getting-started-with-afnetworking/">初学AFNetworking网络通信类库</a>
+          </li>
+        
+          <li>
+            <a href="/2014/03/06/learn-nodejs-with-hexo-source-code/">通过Hexo初始化源码学习Node.js</a>
+          </li>
+        
+          <li>
+            <a href="/2014/03/05/overview-of-short-distance-wireless-communication-technology/">常见短距无线通信技术概览</a>
+          </li>
+        
+          <li>
+            <a href="/2014/03/04/diy-send-to-kindle-with-automator/">使用Automator工具DIY一个Send to Kindle功能</a>
+          </li>
+        
+          <li>
+            <a href="/2014/03/02/pi-performance-testing-with-tornado-and-nginx/">基于树莓派搭建的Tornado WebService性能测试</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2014 Shining Chan<br>
+      Powered by <a href="http://zespia.tw/hexo/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">首页</a>
+  
+    <a href="/archives" class="mobile-nav-link">存档</a>
+  
+    <a href="/about" class="mobile-nav-link">关于</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script type="text/javascript" src="/js/script.js"></script>
+  </div>
+</body>
+</html>
