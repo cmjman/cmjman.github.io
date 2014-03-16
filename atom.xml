@@ -4,7 +4,7 @@
   
   <link href="/atom.xml" rel="self"/>
   <link href="http://yoursite.com/"/>
-  <updated>2014-03-14T11:35:42.451Z</updated>
+  <updated>2014-03-16T11:38:02.321Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -13,6 +13,181 @@
   </author>
   
   <generator uri="http://zespia.tw/hexo/">Hexo</generator>
+  
+  <entry>
+    <title><![CDATA[基于WebSocket构建移动端实时应用]]></title>
+    <link href="http://yoursite.com/2014/03/16/build-real-time-app-with-websocket/"/>
+    <id>http://yoursite.com/2014/03/16/build-real-time-app-with-websocket/</id>
+    <published>2014-03-16T11:37:59.000Z</published>
+    <updated>2014-03-16T11:37:59.000Z</updated>
+    <content type="html"><![CDATA[<h2 id="-">前言</h2>
+<p>对于传统的网络应用，大部分情况下使用的是Http短连接，这意味着你发送一次请求，服务器给你返回响应信息，然后连接就被断掉了。然而现实生活中，很多应用实际上是需要一种实时机制的支持，比如微信，你就需要实时收到对方发送的回复信息。对于应用处于后台的情况下，你可以使用系统级别的推送服务，比如iOS下的APNS和Android下的GCM。应用处于前台时呢，则需要自己去和服务端建立一个Http长连接或者轮询，这种方式对于服务器的性能要求还是比较高的。HTML5中提出了一种新的双向通信协议--WebSocket，本文尝试采用这种技术来实现以上的实时推送功能。</p>
+<a id="more"></a>
+
+<h2 id="websocket">WebSocket</h2>
+<p>WebSocket是HTML5开始提供的一种在客户端和服务器间持久连接的双向通信网络技术。 WebSocket通信协议于2011年被IETF定为标准 RFC 6455，WebSocketAPI被W3C定为标准。协议本身使用新的ws://URL格式，但它是在标准HTTP上实现的。通过使用HTTP和HTTPS端口，它避免了从Web代理后的网络连接站点时引入的各种问题。HTML5规范不只描述了协议本身，还描述了使用WebSocket编写客户端代码所需要的浏览器API。在WebSocket API中，浏览器和服务器只需要做一个握手的动作，然后，浏览器和服务器之间就形成了一条快速通道。两者之间就直接可以数据互相传送。</p>
+<h2 id="-">服务端实现</h2>
+<p>服务端采用了Facebook开源的<a href="https://github.com/facebook/tornado" target="_blank">Tornado</a>框架，由于Tornado原生支持WebSocket协议，用它来实现服务端非常方便。</p>
+<p>Tornado在WebSocket模块中提供了一个WebSocketHandler类。这个类提供了和已连接的客户端通信的WebSocket事件和方法的钩子。当一个新的WebSocket连接打开时，open方法被调用，而on_message和on_close方法分别在连接接收到新的消息和客户端关闭时被调用。</p>
+<p>此外，WebSocketHandler类还提供了write_message方法用于向客户端发送消息，close方法用于关闭连接。</p>
+<p>以开关状态改变检测为例，服务端部署的代码如下：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre>1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+</pre></td><td class="code"><pre><span class="class"><span class="keyword">class</span> <span class="title">Switch</span><span class="params">(BaseModel)</span>:</span>
+    __tablename__ = <span class="string">'switch'</span>      
+
+    id = Column(Integer, primary_key = <span class="keyword">True</span>)
+    name = Column(String(<span class="number">30</span>))
+    status = Column(Boolean, server_default = text(<span class="string">'False'</span>)) <span class="comment">#开关当前状态</span>
+    level = Column(Integer)                                  <span class="comment">#最小可操作等级</span>
+
+    callbacks = []
+    <span class="decorator">@classmethod</span>
+    <span class="function"><span class="keyword">def</span> <span class="title">register</span><span class="params">(cls, callback)</span>:</span>
+        cls.callbacks.append(callback)
+
+    <span class="decorator">@classmethod</span>
+    <span class="function"><span class="keyword">def</span> <span class="title">unregister</span><span class="params">(cls, callback)</span>:</span>
+        cls.callbacks.remove(callback)
+
+    <span class="function"><span class="keyword">def</span> <span class="title">notifyCallbacks</span><span class="params">(self)</span>:</span>
+        <span class="keyword">for</span> callback <span class="keyword">in</span> self.callbacks:
+            callback(self.id,self.status)
+</pre></td></tr></table></figure>
+
+<p>以上是封装的开关对象，使用了SQLAlchemy作为ORM，其中BaseModel是继承自declarative_base。
+定义了两个类方法，分别是注册和移除回调，另外一个实例方法来通知回调。</p>
+<p>对外处理请求的handler:</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre>1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+</pre></td><td class="code"><pre><span class="class"><span class="keyword">class</span> <span class="title">GetSwitchStatusHandler</span><span class="params">(BaseWebsockHandler)</span>:</span>
+
+    <span class="function"><span class="keyword">def</span> <span class="title">open</span><span class="params">(self)</span>:</span>
+        Switch.register(self.callback)
+
+    <span class="function"><span class="keyword">def</span> <span class="title">on_close</span><span class="params">(self)</span>:</span>
+        Switch.unregister(self.callback)
+			
+    <span class="function"><span class="keyword">def</span> <span class="title">on_message</span><span class="params">(self,msg)</span>:</span>
+        <span class="keyword">pass</span>
+
+    <span class="function"><span class="keyword">def</span> <span class="title">callback</span><span class="params">(self,switch_id,status)</span>:</span>
+        self.write_message(<span class="string">'{"switch_id":"%s","status":"%d"}'</span>%(switch_id,status))
+</pre></td></tr></table></figure>
+
+<p>BaseWebsockHandler继承自tornado.websocket.WebSocketHandler，在initialize中对于SQLAlchemy的session进行了初始化</p>
+<p>由于在本例中不需要取客户端的上行消息，故直接pass调了on_message方法。callback方法则用来处理回调，将改变后的开关信息返回给客户端。</p>
+<h2 id="-">客户端实现</h2>
+<p>客户端使用了Square开源的<a href="https://github.com/square/SocketRocket" target="_blank">SocketRocket</a>。</p>
+<p>在iOS工程中安装可以直接使用源码，也可以用CocoaPods安装，将以下依赖加入到PodFile中，再执行install命令即可</p>
+<p><code>pod &#39;SocketRocket&#39;, &#39;~&gt; 0.3.1-beta2&#39;</code></p>
+<p>SocketRocket的核心是SRWebSocket这个类，需要在使用WebSocket连接的ViewController中实现SRWebSocketDelegate。</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre>1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+</pre></td><td class="code"><pre>- (<span class="keyword">void</span>)connect{
+    
+    webSocket<span class="variable">.delegate</span> = <span class="literal">nil</span>;
+    [webSocket close]; 
+    webSocket = [[SRWebSocket alloc] initWithURLRequest:[<span class="built_in">NSURLRequest</span> requestWithURL:[<span class="built_in">NSURL</span> URLWithString:SWITCH_STATUS_URL]]];
+    webSocket<span class="variable">.delegate</span> = <span class="keyword">self</span>;
+    <span class="built_in">NSLog</span>(@<span class="string">"Opening Connection..."</span>);
+    [webSocket open];
+}
+
+···
+
+pragma mark - SRWebSocketDelegate
+
+- (<span class="keyword">void</span>)webSocketDidOpen:(SRWebSocket *)webSocket;{
+    <span class="built_in">NSLog</span>(@<span class="string">"Websocket Connected"</span>);
+}
+
+- (<span class="keyword">void</span>)webSocket:(SRWebSocket *)webSocket didFailWithError:(<span class="built_in">NSError</span> *)error;{
+    <span class="built_in">NSLog</span>(@<span class="string">":( Websocket Failed With Error %@"</span>, error);
+    webSocket = <span class="literal">nil</span>;
+}
+
+- (<span class="keyword">void</span>)webSocket:(SRWebSocket *)webSocket didReceiveMessage:(<span class="keyword">id</span>)message;{
+    <span class="built_in">NSLog</span>(@<span class="string">"Received \"%@\""</span>, message);
+}
+
+- (<span class="keyword">void</span>)webSocket:(SRWebSocket *)webSocket didCloseWithCode:(<span class="built_in">NSInteger</span>)code reason:(<span class="built_in">NSString</span> *)reason wasClean:(<span class="built_in">BOOL</span>)wasClean;{
+    <span class="built_in">NSLog</span>(@<span class="string">"WebSocket closed"</span>);
+    webSocket = <span class="literal">nil</span>;
+}
+</pre></td></tr></table></figure>
+
+<p>把delegate指向自身，然后调用SRWebSocket中的方法发送请求即可。
+收到下行消息会调用didReceiveMessage这个方法，如果需要在请求时携带参数，可以用类似get请求的方法，将请求放在url字符串中。</p>
+<p>到此为止WebSocket的基本功能就实现完毕了，完整demo可以参考我的<a href="https://github.com/cmjman?tab=repositories" target="_blank">Github</a>。</p>
+<h2 id="-">参考</h2>
+<p>《Introduction to Tornado》<a href="http://book.douban.com/subject/7906788/" target="_blank">http://book.douban.com/subject/7906788/</a></p>
+]]></content>
+    <summary type="html"><![CDATA[<h2 id="-">前言</h2>
+<p>对于传统的网络应用，大部分情况下使用的是Http短连接，这意味着你发送一次请求，服务器给你返回响应信息，然后连接就被断掉了。然而现实生活中，很多应用实际上是需要一种实时机制的支持，比如微信，你就需要实时收到对方发送的回复信息。对于应用处于后台的情况下，你可以使用系统级别的推送服务，比如iOS下的APNS和Android下的GCM。应用处于前台时呢，则需要自己去和服务端建立一个Http长连接或者轮询，这种方式对于服务器的性能要求还是比较高的。HTML5中提出了一种新的双向通信协议--WebSocket，本文尝试采用这种技术来实现以上的实时推送功能。</p>
+]]></summary>
+    
+      <category term="iOS" scheme="http://yoursite.com/tags/iOS/"/>
+    
+  </entry>
   
   <entry>
     <title><![CDATA[从JSONModel看Objective-C的反射机制]]></title>
