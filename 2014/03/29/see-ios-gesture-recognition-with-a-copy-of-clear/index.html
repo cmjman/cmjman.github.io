@@ -3,15 +3,15 @@
 <head>
   <meta charset="utf-8">
   
-  <title>关于我 | Shining IO</title>
+  <title>从一个Clear式TableView的实现看iOS手势识别机制 | Shining IO</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <meta name="og:type" content="blog">
-<meta name="og:title" content="关于我">
-<meta name="og:url" content="http://yoursite.com/about/index.html">
+<meta name="og:title" content="从一个Clear式TableView的实现看iOS手势识别机制">
+<meta name="og:url" content="http://yoursite.com/2014/03/29/see-ios-gesture-recognition-with-a-copy-of-clear/">
 <meta name="og:image">
 <meta name="og:site_name" content="Shining IO">
-<meta name="og:description" content="程序猿一只，目前专注于移动端开发。
-懂一点iOS，了解过Android，树莓派是业余爱好。">
+<meta name="og:description" content="前言
+TableView大概是iOS开发者在写UI代码时最常使用到的控件，而手势识别亦是iOS平台下最引以为豪的功能点之一，这两者结合一下会发生什么？我首先想到是Clear，这个两年前曾一度火热的效率类应用，算是在iOS平台下将手势和TableView玩到了极致的典范。虽然Clear本身并不开源，我们看不到它的源代码，不过在Github搜索了一番，倒是发现了一个模仿得不错的Demo。于是就借这个d">
 <meta name="twitter:card" content="summary">
   
     <link rel="alternative" href="/atom.xml" title="Shining IO" type="application/atom+xml">
@@ -60,10 +60,10 @@
   </div>
 </header>
       <div class="outer">
-        <section id="main"><article id="page-undefined" class="article article-type-page" itemscope itemprop="blogPost">
+        <section id="main"><article id="post-see-ios-gesture-recognition-with-a-copy-of-clear" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
-    <a href="/about/index.html" class="article-date">
-  <time datetime="2014-02-06T04:42:52.000Z" itemprop="datePublished">2月 6 2014</time>
+    <a href="/2014/03/29/see-ios-gesture-recognition-with-a-copy-of-clear/" class="article-date">
+  <time datetime="2014-03-29T11:33:02.000Z" itemprop="datePublished">3月 29 2014</time>
 </a>
     
   </div>
@@ -74,7 +74,7 @@
         
   
     <h1 class="article-title" itemprop="name">
-      关于我
+      从一个Clear式TableView的实现看iOS手势识别机制
     </h1>
   
 
@@ -82,8 +82,142 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h2 id="-">程序猿一只，目前专注于移动端开发。</h2>
-<h2 id="-ios-android-">懂一点iOS，了解过Android，树莓派是业余爱好。</h2>
+        <h2 id="-">前言</h2>
+<p>TableView大概是iOS开发者在写UI代码时最常使用到的控件，而手势识别亦是iOS平台下最引以为豪的功能点之一，这两者结合一下会发生什么？我首先想到是<a href="http://itunes.apple.com/us/app/clear/id493136154?mt=8" target="_blank">Clear</a>，这个两年前曾一度火热的效率类应用，算是在iOS平台下将手势和TableView玩到了极致的典范。虽然Clear本身并不开源，我们看不到它的源代码，不过在Github搜索了一番，倒是发现了一个模仿得不错的<a href="https://github.com/jamztang/JTGestureBasedTableViewDemo" target="_blank">Demo</a>。于是就借这个demo来学习和整理下iOS下的手势识别机制。</p>
+<a id="more"></a>
+
+<h2 id="-uiresponder-">从UIResponder谈起</h2>
+<p>细心的开发者会发现，iOS下所有UI相关的对象，包括UIView,UIWindow,UIApplication都是UIResponder的子类，其实从字面意思也可以看出，这个类是用来处理用户的触摸事件的。</p>
+<p>该类有以下几个常用的方法：</p>
+<ul>
+<li>touchesBegan:withEvent:</li>
+<li>touchesMoved:withEvent:</li>
+<li>touchesEnded:withEvent:</li>
+<li>touchesCancelled:withEvent:</li>
+</ul>
+<p>以上这些方法提供给开发者重写，用来对用户的触摸事件做反馈。既然这个类能处理触摸事件，那只要对触摸轨迹进行捕捉判断，就基本能够确认用户的手势了。早期的开发者也的确就是这样做的，不过这种方式来判断手势还是比较麻烦的，于是苹果在iOS 3.2之后引入了UIGestureRecognizer，用来简化触摸手势的识别。</p>
+<h2 id="uigesturerecognizer">UIGestureRecognizer</h2>
+<p>UIGestureRecognizer是NSObject的子类，该类本身是一个抽象类，因此不能直接拿来用，一般使用到的是以下子类：</p>
+<table>
+<thead>
+<tr>
+<th>Class</th>
+<th>对应手势</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>UITapGestureRecognizer</td>
+<td>单击</td>
+</tr>
+<tr>
+<td>UIPinchGestureRecognizer</td>
+<td>双指放大缩小</td>
+</tr>
+<tr>
+<td>UIRotationGestureRecognizer</td>
+<td>旋转</td>
+</tr>
+<tr>
+<td>UISwipeGestureRecognizer</td>
+<td>滑动</td>
+</tr>
+<tr>
+<td>UIPanGestureRecognizer</td>
+<td>拖动</td>
+</tr>
+<tr>
+<td>UIScreenEdgePanGestureRecognizer</td>
+<td>滑动返回（iOS7之后引入）</td>
+</tr>
+<tr>
+<td>UILongPressGestureRecognizer</td>
+<td>长按</td>
+</tr>
+</tbody>
+</table>
+<h2 id="clear-">Clear使用到的手势</h2>
+<p>就Clear这个应用而言，使用到了以下这些手势来执行操作：</p>
+<table>
+<thead>
+<tr>
+<th>手势</th>
+<th>操作</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Pan</td>
+<td>向下拖动创建一个新任务</td>
+</tr>
+<tr>
+<td>Tap</td>
+<td>点击Cell进行输入操作</td>
+</tr>
+<tr>
+<td>Swipe</td>
+<td>右滑完成任务/左滑删除任务</td>
+</tr>
+<tr>
+<td>Pinch</td>
+<td>在两个Cell之间放大创建新任务</td>
+</tr>
+<tr>
+<td>LongPress</td>
+<td>长按进行任务的重排</td>
+</tr>
+</tbody>
+</table>
+<h2 id="demo-">Demo的实现</h2>
+<p>直接查看demo的源码，作者自己实现了一个TableViewGestureRecognizer，封装了以上的一些操作。</p>
+<p>首先用enum定义了Recognizer的5个状态：</p>
+<ul>
+<li>JTTableViewGestureRecognizerStateNone      </li>
+<li>JTTableViewGestureRecognizerStateDragging  </li>
+<li>JTTableViewGestureRecognizerStatePinching  </li>
+<li>JTTableViewGestureRecognizerStatePanning</li>
+<li>JTTableViewGestureRecognizerStateMoving   </li>
+</ul>
+<p>由于要对手势进行识别，实现了<code>UIGestureRecognizerDelegate</code>这个protocol。</p>
+<p>作者重写了protocol中的<code>gestureRecognizerShouldBegin</code>方法，这个方法会在手势识别开始前调用。在这里对不同手势进行了甄别，然后分别执行不同的delegate方法。</p>
+<p>Recognizer中定义了3个delegate方法，分别是：</p>
+<ul>
+<li>JTTableViewGestureAddingRowDelegate</li>
+<li>JTTableViewGestureEditingRowDelegate</li>
+<li>JTTableViewGestureMoveRowDelegate</li>
+</ul>
+<p>以上3个方法对应了每个cell的添加，编辑以及移动操作，这些delegate提供给调用方的tableview，用来处理捕捉到手势后的回调。</p>
+<p>以长按事件为例，在识别到该手势时，进行了如下操作：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre>1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+</pre></td><td class="code"><pre><span class="keyword">...</span>
+<span class="keyword">else</span> <span class="keyword">if</span> (gestureRecognizer == self.longPressRecognizer) {
+        
+        CGPoint location = [gestureRecognizer locationInView:self.tableView];
+        NSIndexPath *indexPath = [self.tableView indexPathForRowAtPoint:location];
+
+        <span class="keyword">if</span> (indexPath && [self.delegate conformsToProtocol:@protocol(JTTableViewGestureMoveRowDelegate)]) {
+            BOOL canMoveRow = [self.delegate gestureRecognizer:self canMoveRowAtIndexPath:indexPath];
+            <span class="keyword">return</span> canMoveRow;
+        }
+        <span class="keyword">return</span> NO;
+    }
+<span class="keyword">...</span>
+</pre></td></tr></table></figure>
+
+<p>以上这段代码先是确定了当前触发事件的cell索引数，然后执行JTTableViewGestureMoveRowDelegate中的<code>canMoveRowAtIndexPath:indexPath</code>方法，根据返回的布尔值来判断是否需要移动。</p>
+<p>其他两种操作也是基本遵守了同样的调用路径，就不赘述了，有兴趣的可以直接查看原作者的<a href="https://github.com/jamztang/JTGestureBasedTableViewDemo" target="_blank">源码</a>。</p>
 
       
     </div>
@@ -95,10 +229,22 @@
       <!-- Baidu Share END -->
 
       
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/iOS/">iOS</a></li></ul>
+
     </footer>
   </div>
   
     
+<nav id="article-nav">
+  
+  
+    <a href="/2014/03/20/debug-ios-app-with-pony-debugger/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">使用PonyDebugger调试iOS应用</div>
+    </a>
+  
+</nav>
+
   
 </article>
 
