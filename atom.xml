@@ -4,7 +4,7 @@
   
   <link href="/atom.xml" rel="self"/>
   <link href="http://yoursite.com/"/>
-  <updated>2014-04-01T14:47:33.250Z</updated>
+  <updated>2014-04-12T13:15:17.247Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -13,6 +13,276 @@
   </author>
   
   <generator uri="http://zespia.tw/hexo/">Hexo</generator>
+  
+  <entry>
+    <title><![CDATA[使用Etag增强iOS的URL缓存功能]]></title>
+    <link href="http://yoursite.com/2014/04/12/ios-url-cache-with-etags/"/>
+    <id>http://yoursite.com/2014/04/12/ios-url-cache-with-etags/</id>
+    <published>2014-04-12T13:14:07.000Z</published>
+    <updated>2014-04-12T13:14:07.000Z</updated>
+    <content type="html"><![CDATA[<h2 id="-">前言</h2>
+<p>Web开发中缓存是个很常见的东西，需要缓存无非是有这样一些目的：</p>
+<ul>
+<li>支持应用的离线访问</li>
+<li>减轻服务器的处理负担</li>
+<li>弱网络下节省流量（中国特色）</li>
+</ul>
+<p>iOS下对于缓存的支持有很多，比如Core Data，它可以很方便的建模和操作本地SQLite数据库，
+NSUserDefaults则可以用来缓存一些用户配置等等。本篇主要谈谈使用Etag标签来解决iOS下的URL缓存问题。</p>
+<a id="more"></a>
+
+<h2 id="etag">Etag</h2>
+<p>Etag全称是Entity Tag，一般用于标识URL对象是否发生了改变。
+关于Etag详细说明参看<a href="http://en.wikipedia.org/wiki/HTTP_ETag" target="_blank">Wikipedia Etag</a></p>
+<p>使用Etag一般会出现如下的请求流程：</p>
+<ol>
+<li>客户端首次访问一个Rest API,后端返回一串JSON数据，并在请求头中添加一个Etag标签，这个标签对应的是一个用MD5或者SHA1等哈希算法
+来生成的信息指纹。</li>
+<li>客户端保存这个Etag值，再次发起请求的时候，以If-None-Match作为Key添加到请求头中</li>
+<li>服务端校验请求头中的Etag数据，并跟当前将要输出数据的指纹做校验，如果一致，则表明没有更改，返回状态码为304，如果不一致，
+则返回200，并将新的Etag同时返回，以便下次客户端请求时使用</li>
+</ol>
+<p>简单画了下使用Etag的请求时序图：
+<img src="http://ww3.sinaimg.cn/large/674a21d2jw1efd2oxmw7jj20al07pjri.jpg" alt="etag"></p>
+<h2 id="-">实现</h2>
+<h3 id="-">服务端</h3>
+<p>服务端使用的是Tornado，原生支持Etag，而且默认处于开启状态，因此在应用层面基本不需要额外的代码处理。
+对于一个Restful Webservice，按正常的方式输出JSON即可，其他的细节处理都交给Tornado来处理。</p>
+<p>以下摘取的是Tornado中关于Etag的相关实现代码：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre>1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+</pre></td><td class="code"><pre>web.py
+
+ <span class="function"><span class="keyword">def</span> <span class="title">finish</span><span class="params">(self, chunk=None)</span>:</span>
+    ···
+    <span class="keyword">if</span> <span class="keyword">not</span> self._headers_written:
+        <span class="keyword">if</span> (self._status_code == <span class="number">200</span> <span class="keyword">and</span>
+            self.request.method <span class="keyword">in</span> (<span class="string">"GET"</span>, <span class="string">"HEAD"</span>) <span class="keyword">and</span>
+                <span class="string">"Etag"</span> <span class="keyword">not</span> <span class="keyword">in</span> self._headers):
+            self.set_etag_header()
+            <span class="keyword">if</span> self.check_etag_header():
+                self._write_buffer = []
+                self.set_status(<span class="number">304</span>)
+        <span class="keyword">if</span> self._status_code == <span class="number">304</span>:
+            <span class="keyword">assert</span> <span class="keyword">not</span> self._write_buffer, <span class="string">"Cannot send body with 304"</span>
+            self._clear_headers_for_304()
+        <span class="keyword">elif</span> <span class="string">"Content-Length"</span> <span class="keyword">not</span> <span class="keyword">in</span> self._headers:
+            content_length = sum(len(part) <span class="keyword">for</span> part <span class="keyword">in</span> self._write_buffer)
+            self.set_header(<span class="string">"Content-Length"</span>, content_length)
+
+···
+
+<span class="function"><span class="keyword">def</span> <span class="title">compute_etag</span><span class="params">(self)</span>:</span>
+    hasher = hashlib.sha1()
+    <span class="keyword">for</span> part <span class="keyword">in</span> self._write_buffer:
+        hasher.update(part)
+    <span class="keyword">return</span> <span class="string">'"%s"'</span> % hasher.hexdigest()
+···
+<span class="function"><span class="keyword">def</span> <span class="title">check_etag_header</span><span class="params">(self)</span>:</span>
+    etag = self._headers.get(<span class="string">"Etag"</span>)
+    inm = utf8(self.request.headers.get(<span class="string">"If-None-Match"</span>, <span class="string">""</span>))
+    <span class="keyword">return</span> bool(etag <span class="keyword">and</span> inm <span class="keyword">and</span> inm.find(etag) &gt;= <span class="number">0</span>)
+</pre></td></tr></table></figure>
+
+<p>两个要点：</p>
+<ul>
+<li>关于Etag值的计算，Tornado是使用SHA1算法。</li>
+<li>仅处理Get和Head请求中的Etag，对于Post不做处理，猜测是由于Post属于非幂等方法，使用Etag的意义不大。</li>
+</ul>
+<h3 id="-">客户端</h3>
+<p>客户端使用NSURLCache配合AFNetworking进行网络请求。</p>
+<p>关于NSURLCache，这个库的硬盘缓存机制是在iOS5之后引入的，之前仅支持内存缓存。
+因此如果你的App需要兼容到iOS4，可以采用<a href="https://github.com/rs/SDURLCache" target="_blank">SDURLCache</a>这个第三方库。</p>
+<p>NSURLCache有以下一些缓存策略值，在NSMutableURLRequest的cachePolicy可以进行设置。</p>
+<table>
+<thead>
+<tr>
+<th>策略值</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>UseProtocolCachePolicy</td>
+<td>默认值</td>
+</tr>
+<tr>
+<td>ReloadIgnoringCacheData</td>
+<td>已废弃，使用LocalCacheData代替</td>
+</tr>
+<tr>
+<td>ReloadIgnoringLocalCacheData</td>
+<td>忽略本地缓存</td>
+</tr>
+<tr>
+<td>ReloadIgnoringLocalAndRemoteCacheData</td>
+<td>忽略本地和远程缓存</td>
+</tr>
+<tr>
+<td>ReturnCacheDataElseLoad</td>
+<td>仅缓存不存在时下载</td>
+</tr>
+<tr>
+<td>ReturnCacheDataDontLoad</td>
+<td>仅使用缓存不下载</td>
+</tr>
+<tr>
+<td>ReloadRevalidatingCacheData</td>
+<td>验证远程和本地的一致性，不一致时进行下载</td>
+</tr>
+</tbody>
+</table>
+<p>有关NSURLCache的进一步详细说明，可以参看 Mattt Thompson 的<a href="http://nshipster.com/nsurlcache/" target="_blank">这篇文章</a></p>
+<p>客户端的实现有以下几个要点：</p>
+<ul>
+<li>在请求回调的block中加入对Etag值进行固化操作，使用了NSKeyedArchiver的形式保存到本地文件，以请求的url作为key</li>
+<li>AFHTTPClient继承自AFHTTPRequestOperationManager，需要重写HTTPRequestOperationWithRequest方法，
+根据网络情况设置合适的缓存策略,即在有网络的时候检查缓存一致性，无网络时优先使用缓存，同时在这边需要取出之前固化的Etag,
+添加到请求头中</li>
+<li>在AppDelegate中需要对NSURLCache进行初始化,固化后的缓存文件会放在
+（iOS Sandbox）/Library/Caches/NSURLCache中，以SQLite数据库文件的形式存放</li>
+</ul>
+<p>摘取关键代码如下：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre>1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+</pre></td><td class="code"><pre>AFHTTPClient<span class="variable">.m</span>
+
+- (AFHTTPRequestOperation *)HTTPRequestOperationWithRequest:(<span class="built_in">NSURLRequest</span> *)request
+                                                    success:(<span class="keyword">void</span> (^)(AFHTTPRequestOperation *operation,<span class="keyword">id</span> responseObject))success
+                                                    failure:(<span class="keyword">void</span> (^)(AFHTTPRequestOperation *operation,<span class="built_in">NSError</span> *error))failure{
+
+    NSMutableURLRequest *modifiedRequest = request<span class="variable">.mutableCopy</span>;
+    AFNetworkReachabilityManager *reachability = <span class="keyword">self</span><span class="variable">.reachabilityManager</span>;
+
+    <span class="keyword">if</span> (!reachability<span class="variable">.isReachable</span>){
+        modifiedRequest<span class="variable">.cachePolicy</span> = NSURLRequestReturnCacheDataElseLoad;
+    }<span class="keyword">else</span>
+        modifiedRequest<span class="variable">.cachePolicy</span> = NSURLRequestReloadRevalidatingCacheData;
+
+    ···
+
+    <span class="keyword">if</span> ([request<span class="variable">.HTTPMethod</span> isEqualToString:@<span class="string">"GET"</span>]){
+
+        ···
+        <span class="built_in">NSString</span>* etag = [NSKeyedUnarchiver unarchiveObjectWithFile:filename];
+
+        <span class="keyword">if</span> (etag != <span class="literal">nil</span>){
+
+            <span class="built_in">NSMutableDictionary</span>* mDict = [modifiedRequest<span class="variable">.allHTTPHeaderFields</span> mutableCopy];
+            [mDict setObject:etag forKey:@<span class="string">"If-None-Match"</span>];
+            modifiedRequest<span class="variable">.allHTTPHeaderFields</span> = mDict;
+        }
+    }
+
+    <span class="keyword">return</span> [<span class="keyword">super</span> HTTPRequestOperationWithRequest:modifiedRequest
+                                          success:success
+                                          failure:failure];
+}
+
+
+AppDelegate<span class="variable">.m</span>
+- (<span class="keyword">void</span>)initCache {
+
+    <span class="built_in">NSArray</span> *paths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, <span class="literal">YES</span>);
+    <span class="built_in">NSString</span>* defaultCachePath= [[paths objectAtIndex:<span class="number">0</span>] stringByAppendingPathComponent:@<span class="string">"NSURLCache"</span>];
+    NSURLCache *cache = [[NSURLCache alloc] initWithMemoryCapacity:<span class="number">4</span> * <span class="number">1024</span> * <span class="number">1024</span>
+                                                      diskCapacity:<span class="number">20</span> * <span class="number">1024</span> * <span class="number">1024</span>
+                                                          diskPath:defaultCachePath];
+    [NSURLCache setSharedURLCache:cache];
+}
+</pre></td></tr></table></figure>
+
+<h2 id="-">关于返回状态码</h2>
+<p>在回调的block中打日志输出状态码，会发现不论是否走了缓存都会返回200，这是由于AFNetworking屏蔽了一些底层细节。</p>
+<p>在缓存策略为默认或者其他会选择缓存的情况下，远程返回304，会走本地缓存，此时从operation中取到的状态码依然是200。</p>
+<p>要验证这个情况，可以主动设置缓存策略为不使用缓存，这种情况下会显示真实的远程状态码304.</p>
+]]></content>
+    <summary type="html"><![CDATA[<h2 id="-">前言</h2>
+<p>Web开发中缓存是个很常见的东西，需要缓存无非是有这样一些目的：</p>
+<ul>
+<li>支持应用的离线访问</li>
+<li>减轻服务器的处理负担</li>
+<li>弱网络下节省流量（中国特色）</li>
+</ul>
+<p>iOS下对于缓存的支持有很多，比如Core Data，它可以很方便的建模和操作本地SQLite数据库，
+NSUserDefaults则可以用来缓存一些用户配置等等。本篇主要谈谈使用Etag标签来解决iOS下的URL缓存问题。</p>
+]]></summary>
+    
+      <category term="iOS" scheme="http://yoursite.com/tags/iOS/"/>
+    
+  </entry>
   
   <entry>
     <title><![CDATA[从一个Clear式TableView的实现看iOS手势识别机制]]></title>
