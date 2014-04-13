@@ -3,9 +3,9 @@
   <title><![CDATA[Shining IO]]></title>
   
   <link href="/atom.xml" rel="self"/>
-  <link href="http://yoursite.com/"/>
-  <updated>2014-04-12T13:15:17.247Z</updated>
-  <id>http://yoursite.com/</id>
+  <link href="http://shiningio.com/"/>
+  <updated>2014-04-13T08:42:11.335Z</updated>
+  <id>http://shiningio.com/</id>
   
   <author>
     <name><![CDATA[Shining Chan]]></name>
@@ -16,8 +16,8 @@
   
   <entry>
     <title><![CDATA[使用Etag增强iOS的URL缓存功能]]></title>
-    <link href="http://yoursite.com/2014/04/12/ios-url-cache-with-etags/"/>
-    <id>http://yoursite.com/2014/04/12/ios-url-cache-with-etags/</id>
+    <link href="http://shiningio.com/2014/04/12/ios-url-cache-with-etags/"/>
+    <id>http://shiningio.com/2014/04/12/ios-url-cache-with-etags/</id>
     <published>2014-04-12T13:14:07.000Z</published>
     <updated>2014-04-12T13:14:07.000Z</updated>
     <content type="html"><![CDATA[<h2 id="-">前言</h2>
@@ -280,14 +280,14 @@ AppDelegate<span class="variable">.m</span>
 NSUserDefaults则可以用来缓存一些用户配置等等。本篇主要谈谈使用Etag标签来解决iOS下的URL缓存问题。</p>
 ]]></summary>
     
-      <category term="iOS" scheme="http://yoursite.com/tags/iOS/"/>
+      <category term="iOS" scheme="http://shiningio.com/tags/iOS/"/>
     
   </entry>
   
   <entry>
     <title><![CDATA[从一个Clear式TableView的实现看iOS手势识别机制]]></title>
-    <link href="http://yoursite.com/2014/03/29/see-ios-gesture-recognition-with-a-copy-of-clear/"/>
-    <id>http://yoursite.com/2014/03/29/see-ios-gesture-recognition-with-a-copy-of-clear/</id>
+    <link href="http://shiningio.com/2014/03/29/see-ios-gesture-recognition-with-a-copy-of-clear/"/>
+    <id>http://shiningio.com/2014/03/29/see-ios-gesture-recognition-with-a-copy-of-clear/</id>
     <published>2014-03-29T11:33:02.000Z</published>
     <updated>2014-03-29T11:37:11.000Z</updated>
     <content type="html"><![CDATA[<h2 id="-">前言</h2>
@@ -431,14 +431,14 @@ NSUserDefaults则可以用来缓存一些用户配置等等。本篇主要谈谈
 <p>TableView大概是iOS开发者在写UI代码时最常使用到的控件，而手势识别亦是iOS平台下最引以为豪的功能点之一，这两者结合一下会发生什么？我首先想到是<a href="http://itunes.apple.com/us/app/clear/id493136154?mt=8" target="_blank">Clear</a>，这个两年前曾一度火热的效率类应用，算是在iOS平台下将手势和TableView玩到了极致的典范。虽然Clear本身并不开源，我们看不到它的源代码，不过在Github搜索了一番，倒是发现了一个模仿得不错的<a href="https://github.com/jamztang/JTGestureBasedTableViewDemo" target="_blank">Demo</a>。于是就借这个demo来学习和整理下iOS下的手势识别机制。</p>
 ]]></summary>
     
-      <category term="iOS" scheme="http://yoursite.com/tags/iOS/"/>
+      <category term="iOS" scheme="http://shiningio.com/tags/iOS/"/>
     
   </entry>
   
   <entry>
     <title><![CDATA[使用PonyDebugger调试iOS应用]]></title>
-    <link href="http://yoursite.com/2014/03/20/debug-ios-app-with-pony-debugger/"/>
-    <id>http://yoursite.com/2014/03/20/debug-ios-app-with-pony-debugger/</id>
+    <link href="http://shiningio.com/2014/03/20/debug-ios-app-with-pony-debugger/"/>
+    <id>http://shiningio.com/2014/03/20/debug-ios-app-with-pony-debugger/</id>
     <published>2014-03-20T15:35:59.000Z</published>
     <updated>2014-03-20T15:35:59.000Z</updated>
     <content type="html"><![CDATA[<h2 id="-">前言</h2>
@@ -540,7 +540,7 @@ NSUserDefaults则可以用来缓存一些用户配置等等。本篇主要谈谈
 <p><img src="http://ww4.sinaimg.cn/large/674a21d2gw1eemkgp4t9rj216c0ea40f.jpg" alt="页面显示"></p>
 <p>点击网页中间的应用名即可跳转到debug工具</p>
 <h2 id="-">实现原理</h2>
-<p>简单看了一下PonyDebugger的源码，服务端使用Tornado框架提供WebSocket服务，客户端则是基于Square自家开源的SocketRocket，关于WebSocket相关的知识，可以参考我之前的这篇<a href="http://shiningio.com/2014/03/16/build-real-time-app-with-websocket/" target="_blank">博文</a>。</p>
+<p>简单看了一下PonyDebugger的源码，服务端使用Tornado框架提供WebSocket服务，客户端则是基于Square自家开源的SocketRocket，关于WebSocket相关的知识，可以参考我之前的这篇<a href="http://shiningio.com/2014/03/16/build-real-time-app-with-websocket/">博文</a>。</p>
 <p>网络请求抓包功能是通过注入到NSURLConnectionDelegate中实现的，代码如下：</p>
 <figure class="highlight"><table><tr><td class="gutter"><pre>1
 2
@@ -719,14 +719,14 @@ NSUserDefaults则可以用来缓存一些用户配置等等。本篇主要谈谈
 <p>虽然你可以通过NSLog日志，打断点，抑或LLDB的调试命令等一些常见手段来解决以上问题，但这些方式始终不够直观，效率也不高，特别是对于调试UI这个需求。要提高效率，我们可以使用一些第三方的调试工具，比如本文要介绍的PonyDebugger。</p>
 ]]></summary>
     
-      <category term="iOS" scheme="http://yoursite.com/tags/iOS/"/>
+      <category term="iOS" scheme="http://shiningio.com/tags/iOS/"/>
     
   </entry>
   
   <entry>
     <title><![CDATA[基于WebSocket构建移动端实时应用]]></title>
-    <link href="http://yoursite.com/2014/03/16/build-real-time-app-with-websocket/"/>
-    <id>http://yoursite.com/2014/03/16/build-real-time-app-with-websocket/</id>
+    <link href="http://shiningio.com/2014/03/16/build-real-time-app-with-websocket/"/>
+    <id>http://shiningio.com/2014/03/16/build-real-time-app-with-websocket/</id>
     <published>2014-03-16T11:37:59.000Z</published>
     <updated>2014-03-16T11:37:59.000Z</updated>
     <content type="html"><![CDATA[<h2 id="-">前言</h2>
@@ -894,14 +894,14 @@ pragma mark - SRWebSocketDelegate
 <p>对于传统的网络应用，大部分情况下使用的是Http短连接，这意味着你发送一次请求，服务器给你返回响应信息，然后连接就被断掉了。然而现实生活中，很多应用实际上是需要一种实时机制的支持，比如微信，你就需要实时收到对方发送的回复信息。对于应用处于后台的情况下，你可以使用系统级别的推送服务，比如iOS下的APNS和Android下的GCM。应用处于前台时呢，则需要自己去和服务端建立一个Http长连接或者轮询，这种方式对于服务器的性能要求还是比较高的。HTML5中提出了一种新的双向通信协议--WebSocket，本文尝试采用这种技术来实现以上的实时推送功能。</p>
 ]]></summary>
     
-      <category term="iOS" scheme="http://yoursite.com/tags/iOS/"/>
+      <category term="iOS" scheme="http://shiningio.com/tags/iOS/"/>
     
   </entry>
   
   <entry>
     <title><![CDATA[从JSONModel看Objective-C的反射机制]]></title>
-    <link href="http://yoursite.com/2014/03/14/see-reflection-of-ios-from-jsonmodel/"/>
-    <id>http://yoursite.com/2014/03/14/see-reflection-of-ios-from-jsonmodel/</id>
+    <link href="http://shiningio.com/2014/03/14/see-reflection-of-ios-from-jsonmodel/"/>
+    <id>http://shiningio.com/2014/03/14/see-reflection-of-ios-from-jsonmodel/</id>
     <published>2014-03-14T11:35:37.000Z</published>
     <updated>2014-03-14T11:35:37.000Z</updated>
     <content type="html"><![CDATA[<h2 id="-">前言</h2>
@@ -1099,14 +1099,14 @@ objc_setAssociatedObject(<span class="keyword">self</span><span class="variable"
 <p>移动互联时代，JSON作为一种数据传输格式几乎随处可见。作为iOS开发者，收到一串JSON字符串要怎么处理？我想多数情况下是需要将它转成自定义的NSObject对象再使用，对于这个转换的过程，大部分人是这么做的:</p>
 ]]></summary>
     
-      <category term="iOS" scheme="http://yoursite.com/tags/iOS/"/>
+      <category term="iOS" scheme="http://shiningio.com/tags/iOS/"/>
     
   </entry>
   
   <entry>
     <title><![CDATA[初学AFNetworking网络通信类库]]></title>
-    <link href="http://yoursite.com/2014/03/09/getting-started-with-afnetworking/"/>
-    <id>http://yoursite.com/2014/03/09/getting-started-with-afnetworking/</id>
+    <link href="http://shiningio.com/2014/03/09/getting-started-with-afnetworking/"/>
+    <id>http://shiningio.com/2014/03/09/getting-started-with-afnetworking/</id>
     <published>2014-03-09T12:27:25.000Z</published>
     <updated>2014-03-09T12:27:25.000Z</updated>
     <content type="html"><![CDATA[<h2 id="-">前言</h2>
@@ -1288,14 +1288,14 @@ AFRocketClient *client = [[AFRocketClient alloc] init];
 <p>从Android转过来学iOS开发也快一年了，之前在公司的几个项目在网络通信方面都是使用的ASIHttpRequest。ASI很稳定，效率也不错，可惜的是这个开源项目已经停止更新多年了，甚至连ARC也不支持。手机淘宝这样比较早的项目，大多是基于ASI自己做了一层浅的封装，貌似去年有经过一次大的重构，不过ASI还是留下了。对于ASI这类处于相对底层的依赖库，老项目迁移的成本的确太大了。</p>
 ]]></summary>
     
-      <category term="iOS" scheme="http://yoursite.com/tags/iOS/"/>
+      <category term="iOS" scheme="http://shiningio.com/tags/iOS/"/>
     
   </entry>
   
   <entry>
     <title><![CDATA[通过Hexo初始化源码学习Node.js]]></title>
-    <link href="http://yoursite.com/2014/03/06/learn-nodejs-with-hexo-source-code/"/>
-    <id>http://yoursite.com/2014/03/06/learn-nodejs-with-hexo-source-code/</id>
+    <link href="http://shiningio.com/2014/03/06/learn-nodejs-with-hexo-source-code/"/>
+    <id>http://shiningio.com/2014/03/06/learn-nodejs-with-hexo-source-code/</id>
     <published>2014-03-06T11:12:29.000Z</published>
     <updated>2014-03-06T11:12:29.000Z</updated>
     <content type="html"><![CDATA[<h2 id="-">前言</h2>
@@ -1567,14 +1567,14 @@ AFRocketClient *client = [[AFRocketClient alloc] init];
 <p>静态博客这个东西，在国内应该是12年开始兴起的，个人最早是通过阮一峰的<a href="http://www.ruanyifeng.com/blog/2012/08/blogging_with_jekyll.html" target="_blank">这篇博客</a>才了解到Jekyll。Jekyll虽然很简洁，但有个问题是操作比较繁杂，于是后来就有了基于Ruby自动生成静态页面的Octopress，以及本博客使用的基于Node.js的Hexo。</p>
 ]]></summary>
     
-      <category term="Hexo" scheme="http://yoursite.com/tags/Hexo/"/>
+      <category term="Hexo" scheme="http://shiningio.com/tags/Hexo/"/>
     
   </entry>
   
   <entry>
     <title><![CDATA[常见短距无线通信技术概览]]></title>
-    <link href="http://yoursite.com/2014/03/05/overview-of-short-distance-wireless-communication-technology/"/>
-    <id>http://yoursite.com/2014/03/05/overview-of-short-distance-wireless-communication-technology/</id>
+    <link href="http://shiningio.com/2014/03/05/overview-of-short-distance-wireless-communication-technology/"/>
+    <id>http://shiningio.com/2014/03/05/overview-of-short-distance-wireless-communication-technology/</id>
     <published>2014-03-05T05:52:05.000Z</published>
     <updated>2014-03-05T07:21:50.000Z</updated>
     <content type="html"><![CDATA[<h2 id="-">短距无线通信技术</h2>
@@ -1662,8 +1662,8 @@ AFRocketClient *client = [[AFRocketClient alloc] init];
   
   <entry>
     <title><![CDATA[使用Automator工具DIY一个Send to Kindle功能]]></title>
-    <link href="http://yoursite.com/2014/03/04/diy-send-to-kindle-with-automator/"/>
-    <id>http://yoursite.com/2014/03/04/diy-send-to-kindle-with-automator/</id>
+    <link href="http://shiningio.com/2014/03/04/diy-send-to-kindle-with-automator/"/>
+    <id>http://shiningio.com/2014/03/04/diy-send-to-kindle-with-automator/</id>
     <published>2014-03-04T14:21:22.000Z</published>
     <updated>2014-03-05T06:02:21.000Z</updated>
     <content type="html"><![CDATA[<h2 id="-">前言</h2>
@@ -1699,14 +1699,14 @@ AFRocketClient *client = [[AFRocketClient alloc] init];
 <p>话说Kindle真乃看书神器也，入手Kindle Paperwhite 2 一周不到，已然看完了一本书。唯一美中不足的是传输电子书需要通过数据线，好吧，都移动互联网时代了，还是用线来传数据总是件很low的事。</p>
 ]]></summary>
     
-      <category term="Automator" scheme="http://yoursite.com/tags/Automator/"/>
+      <category term="Automator" scheme="http://shiningio.com/tags/Automator/"/>
     
   </entry>
   
   <entry>
     <title><![CDATA[基于树莓派搭建的Tornado WebService性能测试]]></title>
-    <link href="http://yoursite.com/2014/03/02/pi-performance-testing-with-tornado-and-nginx/"/>
-    <id>http://yoursite.com/2014/03/02/pi-performance-testing-with-tornado-and-nginx/</id>
+    <link href="http://shiningio.com/2014/03/02/pi-performance-testing-with-tornado-and-nginx/"/>
+    <id>http://shiningio.com/2014/03/02/pi-performance-testing-with-tornado-and-nginx/</id>
     <published>2014-03-02T15:27:39.000Z</published>
     <updated>2014-03-02T16:56:23.000Z</updated>
     <content type="html"><![CDATA[<h2 id="-">前言</h2>
@@ -1862,14 +1862,14 @@ http {
 <p>毕业设计是基于树莓派来折腾一个简易的智能家居系统，其中树莓派作为核心控制器提供服务。虽然知道对于树莓派这样的廉价玩具，在性能上并不会有着出众的表现，不过仍然挺好奇一个单核arm架构的廉价计算机性能究竟如何，于是就自己动手简单测试了下。</p>
 ]]></summary>
     
-      <category term="树莓派" scheme="http://yoursite.com/tags/%E6%A0%91%E8%8E%93%E6%B4%BE/"/>
+      <category term="树莓派" scheme="http://shiningio.com/tags/%E6%A0%91%E8%8E%93%E6%B4%BE/"/>
     
   </entry>
   
   <entry>
     <title><![CDATA[iOS开发基础知识整理]]></title>
-    <link href="http://yoursite.com/2014/02/25/basic-knowledge-of-ios-development/"/>
-    <id>http://yoursite.com/2014/02/25/basic-knowledge-of-ios-development/</id>
+    <link href="http://shiningio.com/2014/02/25/basic-knowledge-of-ios-development/"/>
+    <id>http://shiningio.com/2014/02/25/basic-knowledge-of-ios-development/</id>
     <published>2014-02-25T08:18:24.000Z</published>
     <updated>2014-02-25T11:02:15.000Z</updated>
     <content type="html"><![CDATA[<h2 id="block">Block</h2>
@@ -2060,14 +2060,14 @@ http {
 <p>Block本质上就是一个带有局部变量的匿名函数，它于iOS4之后引入，基于C语言的指针和函数指针实现。</p>
 ]]></summary>
     
-      <category term="iOS" scheme="http://yoursite.com/tags/iOS/"/>
+      <category term="iOS" scheme="http://shiningio.com/tags/iOS/"/>
     
   </entry>
   
   <entry>
     <title><![CDATA[一种物联网普适计算的DIY方法：智能闹钟 (译)]]></title>
-    <link href="http://yoursite.com/2014/02/20/diy-smart-alarm-clock-with-raspberry-pi/"/>
-    <id>http://yoursite.com/2014/02/20/diy-smart-alarm-clock-with-raspberry-pi/</id>
+    <link href="http://shiningio.com/2014/02/20/diy-smart-alarm-clock-with-raspberry-pi/"/>
+    <id>http://shiningio.com/2014/02/20/diy-smart-alarm-clock-with-raspberry-pi/</id>
     <published>2014-02-20T03:15:13.000Z</published>
     <updated>2014-02-21T07:40:12.000Z</updated>
     <content type="html"><![CDATA[<h2 id="-">原文</h2>
@@ -2183,14 +2183,14 @@ Issue 4 (2001), 10-17</li>
 能提供了进一步发展的建议。</p>
 ]]></summary>
     
-      <category term="译文" scheme="http://yoursite.com/tags/%E8%AF%91%E6%96%87/"/>
+      <category term="译文" scheme="http://shiningio.com/tags/%E8%AF%91%E6%96%87/"/>
     
   </entry>
   
   <entry>
     <title><![CDATA[基于树莓派DIY家居自动化 (译)]]></title>
-    <link href="http://yoursite.com/2014/02/19/home-automation-with-raspberry-pi/"/>
-    <id>http://yoursite.com/2014/02/19/home-automation-with-raspberry-pi/</id>
+    <link href="http://shiningio.com/2014/02/19/home-automation-with-raspberry-pi/"/>
+    <id>http://shiningio.com/2014/02/19/home-automation-with-raspberry-pi/</id>
     <published>2014-02-19T06:37:31.000Z</published>
     <updated>2014-02-19T14:36:35.000Z</updated>
     <content type="html"><![CDATA[<h2 id="-">原文</h2>
@@ -2314,14 +2314,14 @@ Issue 4 (2001), 10-17</li>
 <p>树莓派是一个廉价的电路板，又称微控制器。它其实是一个在单片机上的小型电脑，最初设计出来是出于兴趣以及帮助学生学习电子和编程。和常见的电脑比较，它非常节能，这意味着它可以一直处于打开状态而不会耗费多少电能，并且它能够很容易地被连接到各种外设和电路板上。</p>
 ]]></summary>
     
-      <category term="译文" scheme="http://yoursite.com/tags/%E8%AF%91%E6%96%87/"/>
+      <category term="译文" scheme="http://shiningio.com/tags/%E8%AF%91%E6%96%87/"/>
     
   </entry>
   
   <entry>
     <title><![CDATA[树莓派适用的传感器(一)]]></title>
-    <link href="http://yoursite.com/2014/02/12/sensors-for-raspberry-pi-1/"/>
-    <id>http://yoursite.com/2014/02/12/sensors-for-raspberry-pi-1/</id>
+    <link href="http://shiningio.com/2014/02/12/sensors-for-raspberry-pi-1/"/>
+    <id>http://shiningio.com/2014/02/12/sensors-for-raspberry-pi-1/</id>
     <published>2014-02-12T05:47:19.000Z</published>
     <updated>2014-02-14T07:52:53.000Z</updated>
     <content type="html"><![CDATA[<h2 id="dht11-">DHT11 温湿度传感器</h2>
@@ -2379,8 +2379,8 @@ Issue 4 (2001), 10-17</li>
   
   <entry>
     <title><![CDATA[关于树莓派GPIO接口 一些资料整理]]></title>
-    <link href="http://yoursite.com/2014/02/11/raspberry-pi-gpio/"/>
-    <id>http://yoursite.com/2014/02/11/raspberry-pi-gpio/</id>
+    <link href="http://shiningio.com/2014/02/11/raspberry-pi-gpio/"/>
+    <id>http://shiningio.com/2014/02/11/raspberry-pi-gpio/</id>
     <published>2014-02-11T12:04:39.000Z</published>
     <updated>2014-02-11T15:18:00.000Z</updated>
     <content type="html"><![CDATA[<h2 id="-">前言</h2>
